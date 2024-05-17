@@ -1,0 +1,3 @@
+        org $8000
+main    move.l  #$326,d1
+        *stop    #$2700
