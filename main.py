@@ -3,6 +3,7 @@
 # papà consiglia https://doc.qt.io/qtforpython-6/tutorials/qmlapp/qmlapplication.html
 
 import logging
+import os
 import subprocess
 import sys
 import tkinter as tk
@@ -23,7 +24,7 @@ fname: str = ""
 base = 0x8000
 stack = 0x9000
 
-logging.basicConfig(filename='myapp.log', level=logging.INFO)
+logging.basicConfig(filename='myapp.log', level=logging.DEBUG)
 def open_file_selector():
     global fname
     print("Open file selector")
@@ -34,29 +35,27 @@ def run_68k():
     mem = runtime.get_mem()
     cpu = runtime.get_cpu()
     c=0
-    b68k.api.tools.setup_watchpoints(1)
-    b68k.api.tools.setup_breakpoints(1)
+    b68k.api.tools.setup_breakpoints(os.path.getsize(fname))
     with open(fname, 'rb') as f:
         byte = f.read(1)
         while byte != b"":
             print(f"writing {int.from_bytes(byte, 'big'):02X} at {base+c:02X}")
             mem.w8(base+c, int.from_bytes(byte, "big"))
-#            b68k.api.tools.set_breakpoint(c+1, base+c, 0, None)
+            b68k.api.tools.set_breakpoint(c, base+c, MEM_FC_SUPER_MASK, None)
             c+=1
             byte = f.read(1)
-        b68k.api.tools.set_breakpoint(0, base+c-1, MEM_FC_SUPER_MASK, None)
-        b68k.api.tools.set_watchpoint(0, 0x10000, MEM_FC_SUPER_MASK, None)
+        print(f"End found at {base+c-1:02X}")
 
-    print(f"Loaded {c} bytes")
+    print(f"Loaded {c} bytes\n")
     runtime.reset(base, stack)
 
-    print(cpu.get_regs(),end ="\n\n")
-
-    runtime.run()
-
-    print(cpu.get_regs())
-
-    runtime.run()
+    
+    while cpu.r_pc() < base+c-1:
+        current_line = b68k.api.disasm.disassemble(cpu.r_pc())
+        print(f"{cpu.r_pc():02X}: {current_line[2]}")
+        runtime.run()
+        print(cpu.get_regs())
+        input()
     runtime.shutdown()
     pass
 
