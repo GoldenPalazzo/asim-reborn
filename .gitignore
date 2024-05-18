@@ -1,1 +1,4 @@
 .venv
+/docs/*.pdf
+*.[Hh]68
+*.log
