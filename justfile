@@ -19,4 +19,4 @@ compile file:
     fa="$(cd {{quote(invocation_directory())}} && readlink -f "$1")" &&\
     fr="$(realpath --relative-to="$jd" "$fa")" &&\
     docker run -ti -v "$jd":/srv/ --rm 68k-env:latest \
-        vasmm68k_mot -Fsrec -s19 -exec=main -no-opt -o "${fr%.*}.h68" "$fr"
+        vasmm68k_mot -Fsrec -s37 -exec=main -no-opt -o "${fr%.*}.h68" "$fr"
