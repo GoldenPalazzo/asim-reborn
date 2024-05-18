@@ -16,7 +16,7 @@ loop    clr.w   d0
         muls    d0,d1
         add     d1,d2
         addq.b  #1,d3
-        cmp.b   #n,d3
+        cmp.b   #N,d3
         blt     loop
         move.l  d2,P
 stop    bra     stop
