@@ -20,3 +20,7 @@ compile file:
     fr="$(realpath --relative-to="$jd" "$fa")" &&\
     docker run -ti -v "$jd":/srv/ --rm 68k-env:latest \
         vasmm68k_mot -Fsrec -s37 -exec=main -no-opt -o "${fr%.*}.h68" "$fr"
+
+bash:
+    jd="$(readlink -f .)" &&\
+    docker run -ti -v "$jd":/srv/ --rm 68k-env:latest /bin/bash
