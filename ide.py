@@ -20,7 +20,7 @@ class IDE(QMainWindow):
     def init_ui(self):
         self.text_edit = QTextEdit()
         self.text_edit.setTabStopWidth(40)
-        self.text_edit.setFont(QFont('Monospace', 12))
+        self.text_edit.setFont(QFont('Courier', 12))
         self.setCentralWidget(self.text_edit)
         self.initMenuBar()
 
