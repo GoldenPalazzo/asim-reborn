@@ -2,3 +2,8 @@
 /docs/*.pdf
 *.[Hh]68
 *.log
+__pycache__/
+*.py[cod]
+build
+*.manifest
+*.spec
