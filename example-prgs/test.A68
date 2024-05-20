@@ -1,0 +1,3 @@
+        org $8000
+test		dc.b 12,12,12,0
+main		move.l  #$deadbeef,d1
