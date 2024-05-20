@@ -4,8 +4,18 @@ import pathlib
 import platform
 import os.path
 import subprocess
+import sys
 
-compiler_path = (pathlib.Path(__file__).parent.parent / "bin" / (f"vasmm68k_mot_{'win.exe' if platform.system() == 'Windows' else 'linux'}")).resolve()
+if getattr(sys, 'frozen', False):
+    base_path = pathlib.Path(sys._MEIPASS) # type: ignore
+
+else:
+    base_path = pathlib.Path(__file__).parent.parent
+compiler_path = (base_path /
+                 "bin" /
+                 ("vasmm68k_mot_"
+                  f"{'win.exe' if platform.system() == 'Windows' else 'linux'}")
+                 ).resolve()
 print(compiler_path)
 
 arguments = ("-Fsrec","-s37","-exec=main","-no-opt")
