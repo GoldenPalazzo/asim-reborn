@@ -20,7 +20,7 @@ ftypes = [
     ('All files', '*'), 
 ]
 
-logging.basicConfig(filename='myapp.log', level=logging.DEBUG)
+#logging.basicConfig(filename='myapp.log', level=logging.DEBUG)
 
 class ASIMWindow(tk.Tk):
     def __init__(self, cpu):
