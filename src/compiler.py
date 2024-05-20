@@ -25,7 +25,7 @@ class Compiler:
         pass
         #subprocess.run(["just", "build"])
     def compile(self, fpath):
-        command_array = [compiler_path,
+        command_array = [str(compiler_path),
                               *arguments,
                               "-o",
                               f"{os.path.splitext(fpath)[0]}.h68",
