@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from typing import Any, Optional, Dict, Tuple, Union # "tuple" works from 3.9 onwards
 
 import bare68k as b68k
