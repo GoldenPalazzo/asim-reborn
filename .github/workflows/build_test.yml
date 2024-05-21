@@ -9,7 +9,7 @@ jobs:
       - name: Download vasm
         run: ./bin/download_vasm.sh
       - name: Build executable
-        uses: sayyid5416/pyinstaller@v1.2.0
+        uses: sayyid5416/pyinstaller@v1
         with:
           python_ver: '3.6.7'
           spec: 'src/main.py'
