@@ -1,0 +1,19 @@
+name: Build executable
+on: [push]
+jobs:
+  Build-Linux-Exe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checking out repo code
+        uses: actions/checkout@v4
+      - name: Download vasm
+        run: ./bin/download_vasm.sh
+      - name: Build executable
+        uses: sayyid5416/pyinstaller@v1.2.0
+        with:
+          python_ver: '3.6.15'
+          spec: 'src/main.py'
+          requirements: 'requirements.txt'
+          upload_exe_with_name: 'AsimReborn'
+          options: --onefile, --name "AsimReborn", --add-binary bin/vasmm68k_mot_linux:bin/ 
+
