@@ -16,6 +16,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip pyinstaller pytest
           pip install -r requirements.txt
+      - name: Random things
+        run: |
+          ls -al
+          pwd
       - name: Build executable
         run: pyinstaller --clean --onefile --name "AsimReborn" --add-binary bin/vasmm68k_mot_linux:bin/ src/main.py
       - name: Deploy artifacts
