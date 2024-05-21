@@ -21,7 +21,7 @@ jobs:
           ls -al
           pwd
       - name: Build executable
-        run: pyinstaller --clean --onefile --name "AsimReborn" --add-binary bin/vasmm68k_mot_linux:bin/ src/main.py
+        run: pyinstaller --clean --onedir --name "AsimReborn" --add-binary bin/vasmm68k_mot_linux:bin/ src/main.py
       - name: Deploy artifacts
         uses: actions/upload-artifact@v4
         with:
