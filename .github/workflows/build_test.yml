@@ -15,5 +15,6 @@ jobs:
           spec: 'src/main.py'
           requirements: 'requirements.txt'
           upload_exe_with_name: 'AsimReborn'
-          options: --onefile, --name "AsimReborn", --add-binary bin/vasmm68k_mot_linux:bin/ 
-
+          options: --onefile, --name "AsimReborn", --add-binary bin/vasmm68k_mot_linux:bin/
+      - name: Showme the .spec
+        run: /bin/sh -c 'find . -type f -ls'
