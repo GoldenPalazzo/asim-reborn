@@ -3,9 +3,9 @@
 import sys
 from typing import Optional, Union, Callable, List
 
-from PySide2.QtWidgets import QApplication, QGridLayout, QHBoxLayout, QLabel, QMainWindow, QPushButton, QTextEdit, QAction, QFileDialog, QVBoxLayout, QWidget
-from PySide2.QtGui import QFont, QTextCursor
-from PySide2.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QGridLayout, QHBoxLayout, QLabel, QMainWindow, QPushButton, QTextEdit, QFileDialog, QVBoxLayout, QWidget
+from PySide6.QtGui import QFont, QTextCursor, QAction
+from PySide6.QtCore import Qt
 
 import m68k
 

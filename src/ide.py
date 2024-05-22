@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from PySide2.QtWidgets import QApplication, QMainWindow, QTextEdit, QAction, QFileDialog
-from PySide2.QtGui import QFont, QTextCursor, QKeySequence, QKeyEvent
-from PySide2.QtCore import Qt, QEvent
+from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QFileDialog
+from PySide6.QtGui import QFont, QTextCursor, QKeySequence, QKeyEvent, QAction
+from PySide6.QtCore import Qt, QEvent
 import os.path
 from typing import Optional, Union, Callable
 import sys
