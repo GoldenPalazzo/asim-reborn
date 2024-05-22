@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QFileDialog
-from PySide6.QtGui import QFont, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor
+from PySide6.QtGui import QFont, QFontDatabase, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor, QTextDocument
 from PySide6.QtCore import Qt, QEvent
 import os.path
 from typing import Optional, Union, Callable
 import re
 import sys
 
-import compiler, run, opcodes, palettes
+import compiler, run, opcodes, palettes, path_resolver
 
 class M68KHighlighter(QSyntaxHighlighter):
     def __init__(self, parent: QTextDocument):
@@ -59,7 +59,10 @@ class IDE(QMainWindow):
     def init_ui(self):
         self.text_edit = CustomTextEdit()
         self.text_edit.tab_size = 8
-        self.text_edit.setFont(QFont('Courier', 12))
+        font_path = str(path_resolver.resolve_path("res/DroidSansMono.ttf"))
+        print(font_path)
+        QFontDatabase.addApplicationFont(font_path)
+        self.text_edit.setFont(QFont('Droid Sans Mono', 12))
         self.setCentralWidget(self.text_edit)
         self.text_edit.textChanged.connect(lambda: self.update_window_title(True))
         self.initMenuBar()
@@ -70,6 +73,7 @@ class IDE(QMainWindow):
                                      f"background-color: #{palettes.monokai.background:X}; "
                                      f"color: #{palettes.monokai.text:X}; "
                            " }")
+ 
         self.show()
         
     def initMenuBar(self):
