@@ -37,10 +37,6 @@ class CustomTextEdit(QTextEdit):
     def __init__(self):
         super().__init__()
         self.tab_size = 4
-        palette = self.viewport().palette()
-        palette.setColor(self.viewport().backgroundRole(), palettes.monokai.background)
-        self.setTextColor(palettes.monokai.foreground)
-        self.viewport().setPalette(palette)
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Tab:
             spaces = self.tab_size - self.textCursor().columnNumber() % self.tab_size
@@ -70,6 +66,10 @@ class IDE(QMainWindow):
 
         self.setGeometry(100, 100, 800, 600)
         self.update_window_title(False)
+        self.text_edit.setStyleSheet("QTextEdit { "
+                                     f"background-color: #{palettes.monokai.background:X}; "
+                                     f"color: #{palettes.monokai.text:X}; "
+                           " }")
         self.show()
         
     def initMenuBar(self):
