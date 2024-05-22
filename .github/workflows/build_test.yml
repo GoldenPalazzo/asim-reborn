@@ -6,6 +6,12 @@ jobs:
     steps:
       - name: Checking out repo code
         uses: actions/checkout@v4
+      - name: Installing build packages
+        run: |
+          apt update
+          apt install --yes libxcb-cursor0 libxcb-shape0 libxcb-image0 \
+             libxcb-keysyms1 libxkbcommon-x11-0 libxcb-icccm4 libxcb-xkb1 \
+             libxcb-randr0  libxcb-render-util0
       - name: Setup python
         uses: actions/setup-python@v5
         with:
