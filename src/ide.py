@@ -1,17 +1,46 @@
 #!/usr/bin/env python3
 from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QFileDialog
-from PySide6.QtGui import QFont, QTextCursor, QKeySequence, QKeyEvent, QAction
+from PySide6.QtGui import QFont, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor
 from PySide6.QtCore import Qt, QEvent
 import os.path
 from typing import Optional, Union, Callable
+import re
 import sys
 
-import compiler, run
+import compiler, run, opcodes, palettes
 
+class M68KHighlighter(QSyntaxHighlighter):
+    def __init__(self, parent: QTextEdit):
+        super().__init__(parent)
+        self.opcode_format = QTextCharFormat()
+        self.opcode_format.setForeground(Qt.cyan)
+        self.opcode_format.setFontWeight(QFont.Bold)
+        self.directive_format = QTextCharFormat()
+        self.directive_format.setForeground(Qt.yellow)
+        self.directive_format.setFontWeight(QFont.Bold)
+        self.opcode_re= re.compile(
+                opcodes.regex_generator(opcodes.opcodes),
+                re.IGNORECASE)
+        self.directive_re = re.compile(
+                opcodes.regex_generator(opcodes.directives),
+                re.IGNORECASE)
+
+    def highlightBlock(self, text):
+        for expression, format in [(self.opcode_re, self.opcode_format),
+                                   (self.directive_re, self.directive_format)]:
+            for match in re.finditer(expression, text):
+                start = match.start()
+                length = match.end() - start
+                self.setFormat(start, length, format)
+        
 class CustomTextEdit(QTextEdit):
     def __init__(self):
         super().__init__()
         self.tab_size = 4
+        palette = self.viewport().palette()
+        palette.setColor(self.viewport().backgroundRole(), palettes.monokai.background)
+        self.setTextColor(palettes.monokai.foreground)
+        self.viewport().setPalette(palette)
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Tab:
             spaces = self.tab_size - self.textCursor().columnNumber() % self.tab_size
@@ -27,7 +56,9 @@ class IDE(QMainWindow):
         self.compiler = compiler.Compiler()
         self.runner = run.Runner()
         self.current_file: Optional[str] = None
+ 
         self.init_ui()
+        self.highlighter = M68KHighlighter(self.text_edit.document())
 
     def init_ui(self):
         self.text_edit = CustomTextEdit()
