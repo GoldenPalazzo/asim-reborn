@@ -1,4 +1,4 @@
-from PySide6.QtGui import QColor
+#!/usr/bin/env python3
 
 class Palette:
     def __init__(self,

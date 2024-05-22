@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # m68k opcodes divided by size modifiers
 
 # for now it's just a list of opcodes
