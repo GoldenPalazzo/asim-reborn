@@ -1,3 +1,1 @@
-bare68k @ file:///home/golden/work/bare68k/dist/bare68k-0.1.2-cp312-cp312-linux_x86_64.whl#sha256=0cd16dd858a8e90036e3477538d08adf466f33fb114d4b5fae24011293ddc55b
 PySide6==6.7.0
-pyinstaller==6.7.0
