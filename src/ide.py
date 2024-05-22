@@ -14,9 +14,11 @@ class CustomTextEdit(QTextEdit):
         self.tab_size = 4
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Tab:
+            spaces = self.tab_size - self.textCursor().columnNumber() % self.tab_size
             e = QKeyEvent(QEvent.KeyPress, Qt.Key_Space, Qt.KeyboardModifiers(e.nativeModifiers()),
-                              " "*self.tab_size)
+                              " "*spaces)
         super().keyPressEvent(e)
+        #print(self.textCursor().columnNumber())
 
 
 class IDE(QMainWindow):
