@@ -10,7 +10,7 @@ import sys
 import compiler, run, opcodes, palettes
 
 class M68KHighlighter(QSyntaxHighlighter):
-    def __init__(self, parent: QTextEdit):
+    def __init__(self, parent: QTextDocument):
         super().__init__(parent)
         self.opcode_format = QTextCharFormat()
         self.opcode_format.setForeground(Qt.cyan)
