@@ -1,0 +1,4 @@
+        org        $8000
+main    move.l        #$f0cacc1a,d0
+        add        #5,d0
+loop    bra        loop
