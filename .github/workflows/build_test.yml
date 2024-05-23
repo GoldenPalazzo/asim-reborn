@@ -21,7 +21,7 @@ jobs:
             b68k: '.\lib\bare68k-0.1.2-cp312-cp312-win_amd64.whl'
             vasm: '.\bin\vasmm68k_mot_win.exe'
             main: '.\src\main.py'
-            exec: '.\dist\AsimReborn.exe'
+            exec: '.\dist\AsimReborn'
             art:  'asimreborn-win64'
     runs-on: ${{ matrix.os }}
     steps:
