@@ -1,39 +1,59 @@
 name: Build executable
 on: [push]
 jobs:
-  Build-Linux-Exe:
-    runs-on: ubuntu-20.04
+  Build-Exe:
+    strategy:
+      matrix:
+        config:
+          - {os:ubuntu-20.04,
+              binf:   'bin/'
+              resf:   'res/'
+              script: './src/prepare_repo.sh',
+              b68k:   'lib/bare68k.whl',
+              vasm:   'bin/vasmm68k_mot_linux',
+              main:   'src/main.py',
+              exec:   'dist/AsimReborn',
+              art:    'asimreborn-lin'}
+          - {os:windows-latest,
+              binf:   'bin\'
+              resf:   'res\'
+              script: '.\src\prepare_repo.bat',
+              b68k: '.\lib\bare68k.whl',
+              vasm: '.\bin\vasmm68k_mot_linux',
+              main: '.\src\main.py',
+              exec: '.\dist\AsimReborn.exe',
+              art:  'asimreborn-win64'}
+    runs-on: ${{ matrix.config.os }}
     steps:
       - name: Checking out repo code
         uses: actions/checkout@v4
-      - name: Installing build packages
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.3'
+      - name: Installing linux build packages
+        if: runner.os == 'Linux'
         run: |
           sudo apt update
           sudo apt install --yes libxcb-cursor0 libxcb-shape0 libxcb-image0 \
              libxcb-keysyms1 libxkbcommon-x11-0 libxcb-icccm4 libxcb-xkb1 \
              libxcb-randr0  libxcb-render-util0
-      - name: Setup python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12.3'
-      - name: Random things
-        run: |
-          ls -al
-          pwd
       - name: Download resources
-        run: ./src/prepare_repo.sh
+        run: {{ matrix.config.script }}
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip pyinstaller
           pip install -r requirements.txt
-          pip install lib/bare68k-0.1.2-cp312-cp312-linux_x86_64.whl
-      - name: Build executable
+      - name: Install bare68k
+        run: pip install {{ matrix.config.b68k }}
+      - name: Build executable linux
+        if: runner.os == 'Linux'
         run: |
-          pyinstaller --clean --onedir --name "AsimReborn" --add-binary="bin/vasmm68k_mot_linux:bin/" --add-data="res/DroidSansMono.ttf:res/" src/main.py
+          pyinstaller --clean --onedir --name "AsimReborn" --add-binary="{{ matrix.config.vasm }}:{{ matrix.config.binf }}" --add-data="{{ matrix.config.resf }}DroidSansMono.ttf:{{ matrix.config.resf }}" {{ matrix.config.main }}
       - name: Deploy artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: asimreborn-linux
-          path: dist/AsimReborn
+          name: {{ matrix.config.art }}
+          path: {{ matrix.config.exec }}
           if-no-files-found: error
 
