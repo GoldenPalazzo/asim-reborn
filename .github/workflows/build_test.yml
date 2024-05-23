@@ -19,7 +19,7 @@ jobs:
             resf:   'res\'
             script: '.\src\prepare_repo.bat'
             b68k: '.\lib\bare68k-0.1.2-cp312-cp312-win_amd64.whl'
-            vasm: '.\bin\vasmm68k_mot_linux'
+            vasm: '.\bin\vasmm68k_mot_win.exe'
             main: '.\src\main.py'
             exec: '.\dist\AsimReborn.exe'
             art:  'asimreborn-win64'
