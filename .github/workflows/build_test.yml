@@ -5,7 +5,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os:ubuntu-20.04
+          - os: 'ubuntu-20.04'
             binf:   'bin/'
             resf:   'res/'
             script: './src/prepare_repo.sh'
@@ -14,7 +14,7 @@ jobs:
             main:   'src/main.py'
             exec:   'dist/AsimReborn'
             art:    'asimreborn-lin'
-          - os:windows-latest
+          - os: 'windows-latest'
             binf:   'bin\'
             resf:   'res\'
             script: '.\src\prepare_repo.bat'
