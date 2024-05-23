@@ -39,21 +39,20 @@ jobs:
              libxcb-keysyms1 libxkbcommon-x11-0 libxcb-icccm4 libxcb-xkb1 \
              libxcb-randr0  libxcb-render-util0
       - name: Download resources
-        run: {{ matrix.script }}
+        run: ${{ matrix.script }}
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip pyinstaller
           pip install -r requirements.txt
       - name: Install bare68k
-        run: pip install {{ matrix.b68k }}
-      - name: Build executable linux
-        if: runner.os == 'Linux'
+        run: pip install ${{ matrix.b68k }}
+      - name: Build executable
         run: |
-          pyinstaller --clean --onedir --name "AsimReborn" --add-binary="{{ matrix.vasm }}:{{ matrix.binf }}" --add-data="{{ matrix.resf }}DroidSansMono.ttf:{{ matrix.resf }}" {{ matrix.main }}
+          pyinstaller --clean --onedir --name "AsimReborn" --add-binary="${{ matrix.vasm }}:${{ matrix.binf }}" --add-data="${{ matrix.resf }}DroidSansMono.ttf:${{ matrix.resf }}" ${{ matrix.main }}
       - name: Deploy artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: {{ matrix.art }}
-          path: {{ matrix.exec }}
+          name: ${{ matrix.art }}
+          path: ${{ matrix.exec }}
           if-no-files-found: error
 
