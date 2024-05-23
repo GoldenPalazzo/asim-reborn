@@ -9,7 +9,7 @@ jobs:
             binf:   'bin/'
             resf:   'res/'
             script: './src/prepare_repo.sh'
-            b68k:   'lib/bare68k.whl'
+            b68k:   'lib/bare68k-0.1.2-cp312-cp312-linux_x86_64.whl'
             vasm:   'bin/vasmm68k_mot_linux'
             main:   'src/main.py'
             exec:   'dist/AsimReborn'
