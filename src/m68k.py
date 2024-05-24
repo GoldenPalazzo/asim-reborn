@@ -105,6 +105,12 @@ class m68k:
             "a7": self.cpu.r_ax(7),
             "sr": self.cpu.r_sr()
         }
+
+    def get_mem(self, start, bytelen) -> bytes:
+        bytearray = b''
+        for i in range(bytelen):
+            bytearray += self.mem.r8(start+i).to_bytes(1, "big")
+        return bytearray
             
     def poweroff(self):
         runtime.shutdown()
