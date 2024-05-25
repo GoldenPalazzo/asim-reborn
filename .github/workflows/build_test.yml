@@ -43,7 +43,6 @@ jobs:
           sudo apt install --yes libxcb-cursor0 libxcb-shape0 libxcb-image0 \
              libxcb-keysyms1 libxkbcommon-x11-0 libxcb-icccm4 libxcb-xkb1 \
              libxcb-randr0  libxcb-render-util0
-      - name: Installing coreutils (OS X)
       - name: Download resources
         run: ${{ matrix.prep }}
       - name: Build vasm (*NIX)
