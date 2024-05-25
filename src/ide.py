@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QFileDialog
+from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, QMessageBox, QTextEdit, QFileDialog
 from PySide6.QtGui import QFont, QFontDatabase, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor, QTextDocument
 from PySide6.QtCore import Qt, QEvent
 import os.path
@@ -65,7 +65,6 @@ class IDE(QMainWindow):
         self.text_edit.setFont(QFont('Droid Sans Mono', 12))
         self.setCentralWidget(self.text_edit)
         self.text_edit.textChanged.connect(lambda: self.update_window_title(True))
-        self.initMenuBar()
 
         self.setGeometry(100, 100, 800, 600)
         self.update_window_title(False)
@@ -74,6 +73,16 @@ class IDE(QMainWindow):
                                      f"color: #{palettes.monokai.text:X}; "
                            " }")
  
+        # Compilation dock
+        self.dock = QDockWidget("Compiler log", self)
+        self.dock.setAllowedAreas(Qt.BottomDockWidgetArea)
+        self.compiler_widget = QTextEdit()
+        self.compiler_widget.setReadOnly(True)
+        self.compiler_widget.setText("Compiler ready.")
+        self.dock.setWidget(self.compiler_widget)
+        self.addDockWidget(Qt.BottomDockWidgetArea, self.dock)
+
+        self.initMenuBar()
         self.show()
         
     def initMenuBar(self):
@@ -108,6 +117,10 @@ class IDE(QMainWindow):
         run_menu = self.menuBar().addMenu('Run')
         run_menu.addAction(compile_action)
         run_menu.addAction(run_action)
+        # Window menu
+        window_menu = self.menuBar().addMenu('Window')
+        window_menu.addAction(self.dock.toggleViewAction())
+
 
     def new_file(self):
         self.text_edit.clear()
@@ -146,7 +159,8 @@ class IDE(QMainWindow):
     def compile_file(self):
         print("Clicked compile")
         print(f"Compiling {self.current_file}")
-        self.compiler.compile(self.current_file)
+        msg = self.compiler.compile(self.current_file)
+        self.compiler_widget.setText(msg)
 
     def run_file(self):
         if self.current_file != None:
