@@ -21,7 +21,7 @@ call :abs_to_rel "%res_dir%" res_dir_rel
 
 REM Run pyinstaller
 pyinstaller --clean --onedir --name "AsimReborn" ^
-    --add-binary="%bin_dir_rel%\vasmm68k_mot_win:bin" ^
+    --add-binary="%bin_dir_rel%\vasmm68k_mot_win.exe:bin" ^
     --add-data="%res_dir_rel%\*:res" ^
     "%src_dir%\main.py"
 
