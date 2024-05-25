@@ -7,7 +7,7 @@ lib_dir=$prj_dir/lib
 # Making directories
 mkdir -p $bin_dir $res_dir $lib_dir
 # Downloading resources
-curl -Lo "$res_dir/DroidSansMono.ttf" \ 
+curl -Lo "$res_dir/DroidSansMono.ttf" \
     "https://www.fontsquirrel.com/fonts/download/droid-sans-mono"
 curl -Lo "$res_dir/MonoLisa-Regular.ttf" \
     "https://github.com/koprab/monalisa-font/raw/master/MonoLisa-Regular.ttf" 
