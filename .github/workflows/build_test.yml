@@ -35,6 +35,7 @@ jobs:
         with:
           python-version: '3.12.3'
       - name: Installing coreutils (OS X)
+        if: runner.os == 'macOS'
         run: brew install coreutils
       - name: Installing QT dependencies (Linux)
         if: runner.os == 'Linux'
