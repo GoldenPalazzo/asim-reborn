@@ -19,5 +19,5 @@ pyinstaller --clean --onedir --name "AsimReborn" \
 
 
 rm -rf build *.spec
-mv dist $prj_dir/dist
+mv -n dist $prj_dir/dist
 
