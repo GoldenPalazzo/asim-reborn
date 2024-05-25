@@ -34,28 +34,31 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12.3'
-      - name: Installing linux build packages
+      - name: Installing coreutils (OS X)
+        run: brew install coreutils
+      - name: Installing QT dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt update
           sudo apt install --yes libxcb-cursor0 libxcb-shape0 libxcb-image0 \
              libxcb-keysyms1 libxkbcommon-x11-0 libxcb-icccm4 libxcb-xkb1 \
              libxcb-randr0  libxcb-render-util0
+      - name: Installing coreutils (OS X)
       - name: Download resources
         run: ${{ matrix.prep }}
-      - name: Build vasm (UNIX)
+      - name: Build vasm (*NIX)
         if: runner.os != 'Windows'
         run: ${{ matrix.build_vasm }}
-      - name: Build bare68k (UNIX)
+      - name: Build bare68k (*NIX)
         if: runner.os != 'Windows'
         run: ${{ matrix.build_b68k }}
-      - name: Install build dependencies (UNIX) 
+      - name: Install pip dependencies (UNIX) 
         if: runner.os != 'Windows'
         run: |
           python -m pip install pip pyinstaller
           pip install -r requirements.txt
           pip install lib/bare68k*.whl
-      - name: Install build dependencies windows
+      - name: Install pip dependencies (Windows)
         if: runner.os == 'Windows'
         run: |
           set PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
