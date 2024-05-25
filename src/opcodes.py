@@ -131,3 +131,7 @@ directives = [
     'org',
     'section'
 ]
+
+registers = [ f'd{i}' for i in range(8) ] + \
+        [ f'a{i}' for i in range(8) ] + \
+        [ 'sp', 'pc', 'sr', 'ccr' ]

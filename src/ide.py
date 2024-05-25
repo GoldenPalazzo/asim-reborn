@@ -12,22 +12,45 @@ import compiler, run, opcodes, palettes, path_resolver
 class M68KHighlighter(QSyntaxHighlighter):
     def __init__(self, parent: QTextDocument):
         super().__init__(parent)
-        self.opcode_format = QTextCharFormat()
-        self.opcode_format.setForeground(Qt.cyan)
-        self.opcode_format.setFontWeight(QFont.Bold)
-        self.directive_format = QTextCharFormat()
-        self.directive_format.setForeground(Qt.yellow)
-        self.directive_format.setFontWeight(QFont.Bold)
-        self.opcode_re= re.compile(
+        self.init_formats(palettes.monokai)
+    def init_formats(self, palette: palettes.Palette):
+        opcode_format = QTextCharFormat()
+        opcode_format.setForeground(QColor(palette.opcode))
+        opcode_format.setFontWeight(QFont.Bold)
+        directive_format = QTextCharFormat()
+        directive_format.setForeground(QColor(palette.directive))
+        directive_format.setFontWeight(QFont.Bold)
+        registers_format = QTextCharFormat()
+        registers_format.setForeground(QColor(palette.registers))
+        registers_format.setFontWeight(QFont.Bold)
+        comment_format = QTextCharFormat()
+        comment_format.setForeground(QColor(palette.comments))
+        comment_format.setFontItalic(True)
+        comment_format.setFontWeight(QFont.Light)
+        character_format = QTextCharFormat()
+        character_format.setForeground(QColor(palette.character))
+        opcode_re= re.compile(
                 opcodes.regex_generator(opcodes.opcodes),
                 re.IGNORECASE)
-        self.directive_re = re.compile(
+        directive_re = re.compile(
                 opcodes.regex_generator(opcodes.directives),
                 re.IGNORECASE)
+        registers_re = re.compile(
+                opcodes.regex_generator(opcodes.registers),
+                re.IGNORECASE)
+        comment_re = re.compile(r';.*')
+        character_re = re.compile(r"'.'")
+        string_re = re.compile(r'"[^"]*"')
+        self.expr_form_couples = [(opcode_re, opcode_format),
+                                   (directive_re, directive_format),
+                                   (registers_re, registers_format),
+                                   (comment_re, comment_format),
+                                   (character_re, character_format),
+                                   (string_re, character_format)]
+
 
     def highlightBlock(self, text):
-        for expression, format in [(self.opcode_re, self.opcode_format),
-                                   (self.directive_re, self.directive_format)]:
+        for expression, format in self.expr_form_couples:
             for match in re.finditer(expression, text):
                 start = match.start()
                 length = match.end() - start

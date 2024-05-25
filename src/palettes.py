@@ -7,17 +7,20 @@ class Palette:
                  character: int,
                  directive: int,
                  opcode: int,
-                 registers: int,):
+                 registers: int,
+                 comments: int):
         self.background = (background)
         self.text= (text)
         self.character = (character)
         self.directive = (directive)
         self.opcode = (opcode)
         self.registers = (registers)
+        self.comments = (comments)
 
-monokai = Palette(0x2e2e2e, 
-                  0xd6d6d6,
-                  0xe5b567,
-                  0xb05279,
-                  0x6c99bb,
-                  0xb4d273)
+monokai = Palette(0x272822, 
+                  0xf8f8f2,
+                  0xe6db74,
+                  0xf92672,
+                  0x66d9ef,
+                  0xa6e22e,
+                  0x6d6b6d)
