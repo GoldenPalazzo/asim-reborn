@@ -1,6 +1,6 @@
 #!/usr/bin/sh
 #
-prj_dir=$(readlink -f $(dirname $0))
+prj_dir=$(dirname $(dirname $(readlink -f "$0")))
 bin_dir=$prj_dir/bin
 res_dir=$prj_dir/res
 lib_dir=$prj_dir/lib
