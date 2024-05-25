@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, QMessageBox, QTextEdit, QFileDialog
 from PySide6.QtGui import QFont, QFontDatabase, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor, QTextDocument
-from PySide6.QtCore import Qt, QEvent
+from PySide6.QtCore import QFileInfo, Qt, QEvent
 import os.path
 from typing import Optional, Union, Callable
 import re
@@ -59,16 +59,20 @@ class IDE(QMainWindow):
     def init_ui(self):
         self.text_edit = CustomTextEdit()
         self.text_edit.tab_size = 8
-        font_path = str(path_resolver.resolve_path("res/DroidSansMono.ttf"))
-        print(font_path)
-        QFontDatabase.addApplicationFont(font_path)
-        self.text_edit.setFont(QFont('Droid Sans Mono', 12))
+        font_path = str(path_resolver.resolve_path("res/MonoLisa-Regular.ttf"))
+        default_font = "MonoLisa"
+        found_font = QFontDatabase.addApplicationFont(font_path)
+        if found_font == -1:
+            print("MonoLisa font not found, fallbacking Monospace")
+            default_font = "Monospace"
         self.setCentralWidget(self.text_edit)
         self.text_edit.textChanged.connect(lambda: self.update_window_title(True))
 
         self.setGeometry(100, 100, 800, 600)
         self.update_window_title(False)
         self.text_edit.setStyleSheet("QTextEdit { "
+                                     f"font-family: '{default_font}'; "
+                                     "font-size: 16pt; "
                                      f"background-color: #{palettes.monokai.background:X}; "
                                      f"color: #{palettes.monokai.text:X}; "
                            " }")
