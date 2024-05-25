@@ -1,4 +1,6 @@
-set prj_dir=%~dp0
+set tmp_dir=%~dp0
+set "tmp_dir=%tmp_dir:~0,-1%"
+for %%i in ("%tmp_dir%\..") do set "prj_dir=%%~dpi"
 set bin_dir=%prj_dir%bin
 set res_dir=%prj_dir%res
 set lib_dir=%prj_dir%lib
