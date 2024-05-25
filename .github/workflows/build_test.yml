@@ -19,7 +19,7 @@ jobs:
             build: '.\src\build.bat'
             dist: '.\dist\AsimReborn'
             art:  'asimreborn-win64'
-          - os: 'darwin-latest'
+          - os: 'macos-13'
             prep: './src/prepare_repo.sh'
             build_vasm: './src/build_vasm.sh'
             build_b68k: './src/build_bare68k.sh'
