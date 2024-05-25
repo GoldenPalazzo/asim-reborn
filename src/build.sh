@@ -13,7 +13,7 @@ abs_to_rel() {
 }
 
 pyinstaller --clean --onedir --name "AsimReborn" \
-    --add-binary="$(abs_to_rel $bin_dir)/vasmm68k_mot_linux:bin" \
+    --add-binary="$(abs_to_rel $bin_dir)/vasmm68k_mot_unix:bin" \
     --add-data="$(abs_to_rel $res_dir)/*:res" \
     $src_dir/main.py
 
