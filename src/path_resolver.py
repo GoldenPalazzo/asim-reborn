@@ -14,6 +14,6 @@ print(base_path)
 compiler_path = (base_path /
                  "bin" /
                  ("vasmm68k_mot_"
-                  f"{'win.exe' if platform.system() == 'Windows' else 'linux'}")
+                  f"{'win.exe' if platform.system() == 'Windows' else 'unix'}")
                  ).resolve()
 
