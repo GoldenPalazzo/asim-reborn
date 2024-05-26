@@ -105,9 +105,7 @@ class Runner(QWidget):
 
     def poweroff(self):
         self.main_cpu.poweroff()
-        self.status.config(text="Poweroff")
-        self.after(2000, self.destroy)
-
+        self.current_instruction.setText("Powered off")
 
 
 if __name__ == '__main__':
