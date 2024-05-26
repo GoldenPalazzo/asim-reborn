@@ -103,10 +103,10 @@ class IDE(QMainWindow):
         # Compilation dock
         self.dock = QDockWidget("Compiler log", self)
         self.dock.setAllowedAreas(Qt.BottomDockWidgetArea)
-        compiler_widget = QTextEdit()
-        compiler_widget.setReadOnly(True)
-        compiler_widget.setText("Compiler ready.")
-        self.dock.setWidget(compiler_widget)
+        self.compiler_widget = QTextEdit()
+        self.compiler_widget.setReadOnly(True)
+        self.compiler_widget.setText("Compiler ready.")
+        self.dock.setWidget(self.compiler_widget)
         self.addDockWidget(Qt.BottomDockWidgetArea, self.dock)
 
         #Execution dock
