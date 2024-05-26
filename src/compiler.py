@@ -9,7 +9,11 @@ import sys
 import path_resolver
 
 
-arguments = ("-Fsrec","-s37","-exec=main","-no-opt")
+arguments = (
+        "-Fsrec",
+        "-s37",
+        "-exec=main",
+        "-no-opt")
 
 class Compiler:
     def __init__(self):
@@ -20,6 +24,8 @@ class Compiler:
                               *arguments,
                               "-o",
                               f"{os.path.splitext(fpath)[0]}.h68",
+                              "-L",
+                              f"{os.path.splitext(fpath)[0]}.lst",
                               fpath]
         print(f"Running {command_array}")
         p = subprocess.Popen(command_array, stdout=subprocess.PIPE)
