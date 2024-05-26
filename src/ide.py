@@ -109,6 +109,11 @@ class IDE(QMainWindow):
         self.dock.setWidget(compiler_widget)
         self.addDockWidget(Qt.BottomDockWidgetArea, self.dock)
 
+        #Execution dock
+        self.side_dock = QDockWidget("Execution", self)
+        self.side_dock.setAllowedAreas(Qt.RightDockWidgetArea)
+        self.side_dock.setWidget(self.runner)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.side_dock)
         self.initMenuBar()
         self.show()
         
@@ -147,6 +152,7 @@ class IDE(QMainWindow):
         # Window menu
         window_menu = self.menuBar().addMenu('Window')
         window_menu.addAction(self.dock.toggleViewAction())
+        window_menu.addAction(self.side_dock.toggleViewAction())
 
 
     def new_file(self):
@@ -193,7 +199,7 @@ class IDE(QMainWindow):
         if self.current_file != None:
             binary = os.path.splitext(self.current_file)[0] + ".h68"
             self.runner.load_file(binary)
-            self.runner.show()
+            self.side_dock.show()
 
     def close_event(self, event):
         event.accept()
