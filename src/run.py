@@ -86,14 +86,15 @@ class Runner(QWidget):
         for i in range(8):
             self.dregs[i].setText(f"0x{regs[f'd{i}']:08X}")
             self.aregs[i].setText(f"0x{regs[f'a{i}']:08X}")
-        self.sreg.setText(f"{self.main_cpu.cpu.r_sr():016b}")
-        self.pc.setText(f"{pc:08X}")
+        self.sreg.setText(f"{self.main_cpu.format_sreg(self.main_cpu.cpu.r_sr())}")
+        self.pc.setText(f"0x{pc:08X}")
         self.memview.clear()
         radius = 0x80
-        mem = self.main_cpu.get_mem(max(pc-radius//2,0), radius)
+        start = max(pc-radius//2,0)
+        mem = self.main_cpu.get_mem(start, radius)
         step = 4
         for i in range(0, len(mem), step):
-            self.memview.append(f"0x{i+pc-radius//2:08X} {mem[i:i+step].hex()}")
+            self.memview.append(f"0x{i+start:08X} {mem[i:i+step].hex()}")
         self.memview.moveCursor(QTextCursor.Start)
 
 
