@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, QMessageBox, QPlainTextEdit, QFileDialog
+from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, QMessageBox, QTextEdit, QPlainTextEdit, QFileDialog
 from PySide6.QtGui import QFont, QFontDatabase, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor, QTextDocument
-from PySide6.QtCore import QFileInfo, Qt, QEvent
+from PySide6.QtCore import QFileInfo, QTimer, Qt, QEvent
 import os.path
 from typing import Optional, Union, Callable
 import re
@@ -75,9 +75,12 @@ class IDE(QMainWindow):
         self.compiler = compiler.Compiler()
         self.runner = run.Runner()
         self.current_file: Optional[str] = None
+        self.current_lst: dict[int, int] = {}
  
         self.init_ui()
         self.highlighter = M68KHighlighter(self.text_edit.document())
+        self.runner_polling = QTimer()
+        self.runner_polling.timeout.connect(self.update_highlighted_running_line)
 
     def init_ui(self):
         self.text_edit = CustomTextEdit()
@@ -113,6 +116,7 @@ class IDE(QMainWindow):
         self.side_dock = QDockWidget("Execution", self)
         self.side_dock.setAllowedAreas(Qt.RightDockWidgetArea)
         self.side_dock.setWidget(self.runner)
+        self.runner.poweroff_btn.clicked.connect(self.stop_highlighting)
         self.addDockWidget(Qt.RightDockWidgetArea, self.side_dock)
         self.initMenuBar()
         self.show()
@@ -193,9 +197,37 @@ class IDE(QMainWindow):
         print("Clicked compile")
         print(f"Compiling {self.current_file}")
         msg = self.compiler.compile(self.current_file)
-        self.compiler_widget.setText(msg)
+        self.compiler_widget.setPlainText(msg)
+
+    def parse_lst(self, path: str):
+        valid_line_re = re.compile(r'^[0-9A-Fa-f]{2}:[0-9A-Fa-f]{8}$')
+        with open(path, 'r') as file:
+            lines = file.readlines()
+            for i, line in enumerate(lines):
+                # pair: address -> line number
+                print(f"Line {i}: {line}")
+                s = line.split()
+                if len(s) < 3:
+                    continue
+                if not valid_line_re.match(s[0]):
+                    continue
+                address = int(s[0][3:], 16)
+                row = int(s[2][:-1])
+                print(f"Address: {address}, line: {row}")
+                self.current_lst[address] = row
 
     def run_file(self):
+        #check is .lst file exists
+        if self.current_file == None:
+            QMessageBox.warning(self, "Error", "No file to run.")
+            return
+        lst = os.path.splitext(self.current_file)[0] + ".lst"
+        if not os.path.exists(lst):
+            QMessageBox.warning(self, "Error", "No lst file to run. Line highlighting disabled.")
+            self.runner_polling.stop()
+        else:
+            self.parse_lst(lst)
+            self.runner_polling.start(100)
         if self.current_file != None:
             binary = os.path.splitext(self.current_file)[0] + ".h68"
             self.runner.load_file(binary)
@@ -208,6 +240,28 @@ class IDE(QMainWindow):
         self.setWindowTitle('IDE - '
                             f'{self.current_file if self.current_file else "untitled"}'
                             f'{"*" if modified else ""}')
+
+    def update_highlighted_running_line(self):
+        pc = self.runner.main_cpu.cpu.r_pc()
+        #print("Running line: ", self.current_lst.get(pc, -1))
+        line = self.current_lst.get(pc, 0)-1
+        #print(line)
+        fmt = QTextCharFormat()
+        fmt.setBackground(Qt.red)
+        #fmt.setUnderlineStyle(QTextCharFormat.SpellCheckUnderline)
+        #cursor = self.text_edit.textCursor()
+        cursor = QTextCursor(self.text_edit.document().findBlockByLineNumber(line))
+        cursor.select(QTextCursor.LineUnderCursor)
+        selection = QTextEdit.ExtraSelection()
+        selection.cursor = cursor
+        selection.format = fmt
+        self.text_edit.setExtraSelections([selection])
+        #cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
+
+    def stop_highlighting(self):
+        self.runner_polling.stop()
+        self.text_edit.setExtraSelections([])
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
