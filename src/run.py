@@ -4,7 +4,7 @@ import sys
 from typing import Optional, Union, Callable, List
 import PySide6
 
-from PySide6.QtWidgets import QApplication, QGridLayout, QHBoxLayout, QLabel, QMainWindow, QPushButton, QTextEdit, QFileDialog, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QGridLayout, QHBoxLayout, QLabel, QMainWindow, QPushButton, QPlainTextEdit, QFileDialog, QVBoxLayout, QWidget
 from PySide6.QtGui import QFont, QTextCursor, QAction, QTextOption
 from PySide6.QtCore import Qt
 
@@ -49,15 +49,13 @@ class Runner(QWidget):
         reglayout.addWidget(self.pc)
         frame.addLayout(reglayout, 2, 0)
         # memory view
-        self.memview = QTextEdit()
+        self.memview = QPlainTextEdit()
         self.memview.setReadOnly(True)
         self.memview.setFont(QFont("MonoLisa"))
-        self.memview.setLineWrapMode(QTextEdit.NoWrap)
-        self.memview.setLineWrapColumnOrWidth(0)
+        self.memview.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.memview.setWordWrapMode(QTextOption.NoWrap)
         self.memview.setTabStopDistance(40)
         self.memview.setTabChangesFocus(True)
-        self.memview.setAcceptRichText(False)
         self.memview.setPlaceholderText("Memory")
         frame.addWidget(self.memview, 2, 1)
 
@@ -94,7 +92,8 @@ class Runner(QWidget):
         mem = self.main_cpu.get_mem(start, radius)
         step = 4
         for i in range(0, len(mem), step):
-            self.memview.append(f"0x{i+start:08X} {mem[i:i+step].hex()}")
+            self.memview.moveCursor(QTextCursor.End)
+            self.memview.insertPlainText(f"0x{i+start:08X} {mem[i:i+step].hex()}\n")
         self.memview.moveCursor(QTextCursor.Start)
 
 

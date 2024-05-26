@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, QMessageBox, QTextEdit, QFileDialog
+from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, QMessageBox, QPlainTextEdit, QFileDialog
 from PySide6.QtGui import QFont, QFontDatabase, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor, QTextDocument
 from PySide6.QtCore import QFileInfo, Qt, QEvent
 import os.path
@@ -56,7 +56,7 @@ class M68KHighlighter(QSyntaxHighlighter):
                 length = match.end() - start
                 self.setFormat(start, length, format)
         
-class CustomTextEdit(QTextEdit):
+class CustomTextEdit(QPlainTextEdit):
     def __init__(self):
         super().__init__()
         self.tab_size = 4
@@ -93,7 +93,7 @@ class IDE(QMainWindow):
 
         self.setGeometry(100, 100, 800, 600)
         self.update_window_title(False)
-        self.text_edit.setStyleSheet("QTextEdit { "
+        self.text_edit.setStyleSheet("QPlainTextEdit { "
                                      f"font-family: '{default_font}'; "
                                      "font-size: 16pt; "
                                      f"background-color: #{palettes.monokai.background:X}; "
@@ -103,9 +103,9 @@ class IDE(QMainWindow):
         # Compilation dock
         self.dock = QDockWidget("Compiler log", self)
         self.dock.setAllowedAreas(Qt.BottomDockWidgetArea)
-        self.compiler_widget = QTextEdit()
+        self.compiler_widget = QPlainTextEdit()
         self.compiler_widget.setReadOnly(True)
-        self.compiler_widget.setText("Compiler ready.")
+        self.compiler_widget.setPlainText("Compiler ready.")
         self.dock.setWidget(self.compiler_widget)
         self.addDockWidget(Qt.BottomDockWidgetArea, self.dock)
 
@@ -167,7 +167,7 @@ class IDE(QMainWindow):
         print(fname)
         if fname:
             with open(fname, 'r') as file:
-                self.text_edit.setText(file.read())
+                self.text_edit.setPlainText(file.read())
             self.current_file = fname
             self.update_window_title(False)
 
