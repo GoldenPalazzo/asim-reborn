@@ -84,6 +84,17 @@ class m68k:
         runtime.run()
         print(self.cpu.get_regs())
 
+    def format_sreg(self, sr: int) -> str:
+        mask = 0x8000
+        prot = "T?S??210???XNZVC"
+        string = ""
+        for i in range(16):
+            if mask & sr:
+                string += prot[i]
+            else:
+                string += "-"
+            mask >>= 1
+        return string
 
     def get_regs(self) -> Dict[str, int]:
         return {
