@@ -20,7 +20,11 @@ class Runner(QWidget):
         self.aregs: List[QLabel] = [QLabel(f"0x{0:08X}") for _ in range(8)]
         self.sreg = QLabel(f"{0:016b}")
         self.pc = QLabel(f"{0:08X}")
+        self.sreg.setFont(QFont("MonoLisa"))
+        self.pc.setFont(QFont("MonoLisa"))
         self.current_instruction = QLabel("")
+        self.current_instruction.setFont(QFont("MonoLisa", 18))
+        self.current_instruction.setAlignment(Qt.AlignCenter)
 
         self.init_ui()
 
