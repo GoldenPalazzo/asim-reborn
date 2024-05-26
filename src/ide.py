@@ -2,6 +2,7 @@
 from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, QMessageBox, QTextEdit, QPlainTextEdit, QFileDialog
 from PySide6.QtGui import QFont, QFontDatabase, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor, QTextDocument
 from PySide6.QtCore import QFileInfo, QTimer, Qt, QEvent
+import os
 import os.path
 from typing import Optional, Union, Callable
 import re
@@ -70,7 +71,7 @@ class CustomTextEdit(QPlainTextEdit):
 
 
 class IDE(QMainWindow):
-    def __init__(self):
+    def __init__(self, file: Optional[str] = None):
         super().__init__()
         self.compiler = compiler.Compiler()
         self.runner = run.Runner()
@@ -81,6 +82,10 @@ class IDE(QMainWindow):
         self.highlighter = M68KHighlighter(self.text_edit.document())
         self.runner_polling = QTimer()
         self.runner_polling.timeout.connect(self.update_highlighted_running_line)
+
+        if file:
+            self.current_file = file
+            self.load_file(file)
 
     def init_ui(self):
         self.text_edit = CustomTextEdit()
@@ -170,10 +175,13 @@ class IDE(QMainWindow):
                                                   ';;All Files (*.*)')
         print(fname)
         if fname:
-            with open(fname, 'r') as file:
-                self.text_edit.setPlainText(file.read())
-            self.current_file = fname
-            self.update_window_title(False)
+            self.load_file(fname)
+            
+    def load_file(self, fname: str):
+        with open(fname, 'r') as file:
+            self.text_edit.setPlainText(file.read())
+        self.current_file = fname
+        self.update_window_title(False)
 
     def save_file(self):
         if not self.current_file:

@@ -34,5 +34,11 @@ def main():
         sys.exit(app.exec())
         #app = ASIMWindow(main_cpu)
         #app.mainloop()
+
+def main():
+    app = QApplication(sys.argv)
+    main_window = ide.IDE(sys.argv[1] if len(sys.argv) > 1 else None)
+    comp = compiler.Compiler()
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()
