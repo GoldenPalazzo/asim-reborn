@@ -40,13 +40,13 @@ class m68k:
     def __init__(self):
         self.mem = runtime.get_mem()
         self.cpu = runtime.get_cpu()
-        self.c = 0
         self.new_base = base
 
     def load_file(self, fname: str):
-        b68k.api.tools.setup_breakpoints(99999)
+        b68k.api.tools.setup_breakpoints(1)
         self.found_new_base = False
         self.new_base = base
+        c = 0
         with open(fname, 'r') as f:
             for line in f.readlines():
                 parsed_line = parse_srec_line(line)
@@ -58,15 +58,16 @@ class m68k:
                     bytecode: bytes = parsed_line[2]
                     self.c = 0
                     for dec_byte in bytecode:
-                        print(f"writing {dec_byte:02X} at {base+self.c:02X}")
-                        self.mem.w8(address+self.c, dec_byte)
-                        b68k.api.tools.set_breakpoint(
-                                b68k.api.tools.get_next_free_breakpoint(),
-                                address+self.c, MEM_FC_SUPER_MASK, None)
-                        self.c+=1
+                        print(f"writing {dec_byte:02X} at {base+c:02X}")
+                        self.mem.w8(address+c, dec_byte)
+                        c+=1
                 else:
                     self.found_new_base = True
                     self.new_base = address
+                    b68k.api.tools.set_breakpoint(
+                                b68k.api.tools.get_next_free_breakpoint(),
+                                address, MEM_FC_SUPER_MASK, None)
+
                     print(f"found start at {self.new_base:02X}")
                 #c+=1
                 #byte = f.read(1)
@@ -80,8 +81,7 @@ class m68k:
         return f"0x{self.cpu.r_pc():08X}: {current_line[2]}"
 
     def step(self):
-        print(self.get_current_line())
-        runtime.run()
+        self.cpu.execute(1)
         print(self.cpu.get_regs())
 
     def format_sreg(self, sr: int) -> str:
