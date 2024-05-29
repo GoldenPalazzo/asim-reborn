@@ -116,6 +116,7 @@ class IDE(QMainWindow):
         self.compiler_widget.setPlainText("Compiler ready.")
         self.dock.setWidget(self.compiler_widget)
         self.addDockWidget(Qt.BottomDockWidgetArea, self.dock)
+        self.dock.hide()
 
         #Execution dock
         self.side_dock = QDockWidget("Execution", self)
@@ -123,6 +124,8 @@ class IDE(QMainWindow):
         self.side_dock.setWidget(self.runner)
         self.runner.poweroff_btn.clicked.connect(self.stop_highlighting)
         self.addDockWidget(Qt.RightDockWidgetArea, self.side_dock)
+        self.side_dock.hide()
+
         self.initMenuBar()
         self.show()
         
@@ -205,6 +208,7 @@ class IDE(QMainWindow):
         print("Clicked compile")
         print(f"Compiling {self.current_file}")
         msg = self.compiler.compile(self.current_file)
+        self.dock.show()
         self.compiler_widget.setPlainText(msg)
 
     def parse_lst(self, path: str):
