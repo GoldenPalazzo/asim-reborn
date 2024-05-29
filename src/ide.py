@@ -186,15 +186,15 @@ class IDE(QMainWindow):
         self.current_file = fname
         self.update_window_title(False)
 
-    def save_file(self):
+    def save_file(self) -> bool:
         if not self.current_file:
-            self.save_as_new()
-            return
+            return self.save_as_new()
         with open(self.current_file, 'w') as file:
             file.write(self.text_edit.toPlainText())
         self.update_window_title(False)
+        return True
 
-    def save_as_new(self):
+    def save_as_new(self) -> bool:
         fname, _ = QFileDialog.getSaveFileName(self, 'Save File', '',
                                                   'M68K assembler (*.a68 .A68)'
                                                   ';;All Files (*.*)')
@@ -202,7 +202,8 @@ class IDE(QMainWindow):
             if os.path.splitext(fname)[1] == '':
                 fname += '.a68'
             self.current_file = fname
-            self.save_file()
+            return self.save_file()
+        return False
 
     def compile_file(self):
         print("Clicked compile")
