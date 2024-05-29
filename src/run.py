@@ -67,7 +67,7 @@ class Runner(QWidget):
         buttons.addWidget(self.step_btn)
         buttons.addWidget(self.poweroff_btn)
         frame.addLayout(buttons, 3, 0, 1, -1)
-        frame.setRowStretch(1, 2)
+        frame.setRowStretch(1, 1)
         frame.setRowStretch(2, 1)
         frame.setRowStretch(3, 1)
         self.update_ui()
