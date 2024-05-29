@@ -59,6 +59,7 @@ class Runner(QWidget):
         self.memview.setPlaceholderText("Memory")
         frame.addWidget(self.memview, 1, 0, 1, -1)
 
+        seeker = QHBoxLayout()
         self.seekline = QLineEdit()
         self.seekline.setFont(QFont("MonoLisa"))
         self.seekline.setMaxLength(8)
@@ -67,7 +68,11 @@ class Runner(QWidget):
         self.seekline.setValidator(validator)
         self.seekline.setPlaceholderText("Seek address in hex")
         self.seekline.textChanged.connect(self.update_memview)
-        frame.addWidget(self.seekline, 2, 0, 1, -1)
+        seeker.addWidget(self.seekline)
+        self.seek_sp = QPushButton("Seek SP", self)
+        self.seek_sp.clicked.connect(lambda: self.seekline.setText(f"{self.main_cpu.cpu.r_ax(7):08X}"))
+        seeker.addWidget(self.seek_sp)
+        frame.addLayout(seeker, 2, 0, 1, -1)
 
         buttons = QHBoxLayout()
         self.step_btn = QPushButton('Step', self)
@@ -119,7 +124,8 @@ class Runner(QWidget):
             self.memview.insertPlainText(f"0x{current_addr:08X} "
                                          f"{' '.join(current_mem[j:j+2] \
                                             for j in range(0, len(current_mem), 2))}")
-            if current_addr == self.main_cpu.cpu.r_ax(7):
+            stack_pointer = self.main_cpu.cpu.r_ax(7)
+            if current_addr <= stack_pointer and current_addr+step > stack_pointer:
                 self.memview.insertPlainText(" <-- stack pointer")
             self.memview.insertPlainText("\n")
         self.memview.moveCursor(QTextCursor.Start)
