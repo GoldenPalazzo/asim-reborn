@@ -81,7 +81,6 @@ class m68k:
 
     def step(self):
         self.cpu.execute(1)
-        print(self.cpu.get_regs())
 
     def format_sreg(self, sr: int) -> str:
         mask = 0x8000
