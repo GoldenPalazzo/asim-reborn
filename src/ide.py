@@ -90,6 +90,7 @@ class IDE(QMainWindow):
     def init_ui(self):
         self.text_edit = CustomTextEdit()
         self.text_edit.tab_size = 8
+        self.text_edit.setLineWrapMode(QPlainTextEdit.NoWrap)
         font_path = str(path_resolver.resolve_path("res/MonoLisa-Regular.ttf"))
         default_font = "MonoLisa"
         found_font = QFontDatabase.addApplicationFont(font_path)
@@ -97,7 +98,7 @@ class IDE(QMainWindow):
             print("MonoLisa font not found, fallbacking Monospace")
             default_font = "Monospace"
         self.setCentralWidget(self.text_edit)
-        self.text_edit.textChanged.connect(lambda: self.update_window_title(True))
+        self.text_edit.textChanged.connect(self.on_text_changed)
 
         self.setGeometry(100, 100, 800, 600)
         self.update_window_title(False)
@@ -175,6 +176,9 @@ class IDE(QMainWindow):
         window_menu.addAction(self.dock.toggleViewAction())
         window_menu.addAction(self.side_dock.toggleViewAction())
 
+    def on_text_changed(self):
+        self.update_window_title(True)
+        self.stop_highlighting()
 
     def new_file(self):
         self.text_edit.clear()
@@ -225,9 +229,13 @@ class IDE(QMainWindow):
                     QMessageBox.warning(self, "Error", "Could not save file")
                     return
         print(f"Compiling {self.current_file}")
-        msg = self.compiler.compile(self.current_file)
+        out, err = self.compiler.compile(self.current_file)
         self.dock.show()
-        self.compiler_widget.setPlainText(msg)
+        self.compiler_widget.setPlainText(out + err)
+        if err != "":
+            errors = self.compiler.get_error_lines(err)
+            print(f"errors in {errors}")
+            self.highlight_errors(errors)
 
     def parse_lst(self, path: str):
         valid_line_re = re.compile(r'^[0-9A-Fa-f]{2}:[0-9A-Fa-f]{8}$')
@@ -287,6 +295,19 @@ class IDE(QMainWindow):
         selection.format = fmt
         self.text_edit.setExtraSelections([selection])
         #cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
+
+    def highlight_errors(self, errors: list[int]):
+        fmt = QTextCharFormat()
+        fmt.setBackground(QColor("#ff6464"))
+        selections = []
+        for line in errors:
+            cursor = QTextCursor(self.text_edit.document().findBlockByLineNumber(line-1))
+            cursor.select(QTextCursor.LineUnderCursor)
+            selection = QTextEdit.ExtraSelection()
+            selection.cursor = cursor
+            selection.format = fmt
+            selections.append(selection)
+        self.text_edit.setExtraSelections(selections)
 
     def stop_highlighting(self):
         self.runner_polling.stop()

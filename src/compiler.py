@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import re
 import pathlib
 import platform
 import os.path
@@ -19,7 +20,7 @@ class Compiler:
     def __init__(self):
         pass
         #subprocess.run(["just", "build"])
-    def compile(self, fpath) -> str:
+    def compile(self, fpath) -> tuple[str,str]:
         command_array = [str(path_resolver.compiler_path),
                               *arguments,
                               "-o",
@@ -28,7 +29,12 @@ class Compiler:
                               f"{os.path.splitext(fpath)[0]}.lst",
                               fpath]
         print(f"Running {command_array}")
-        p = subprocess.Popen(command_array, stdout=subprocess.PIPE)
+        p = subprocess.Popen(command_array, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = p.communicate()
         #if p.wait() != 0:
         #    raise Exception("Compilation failed")
-        return p.stdout.read().decode("utf-8")
+        return out.decode(), err.decode()
+
+    def get_error_lines(self, error: str) -> list:
+        line_re = r"in line (\d+)"
+        return list(map(int, re.findall(line_re, error)))
