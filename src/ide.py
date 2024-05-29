@@ -268,7 +268,7 @@ class IDE(QMainWindow):
         line = self.current_lst.get(pc, 0)-1
         #print(line)
         fmt = QTextCharFormat()
-        fmt.setBackground(Qt.red)
+        fmt.setBackground(QColor("#64fffd8d"))
         #fmt.setUnderlineStyle(QTextCharFormat.SpellCheckUnderline)
         #cursor = self.text_edit.textCursor()
         cursor = QTextCursor(self.text_edit.document().findBlockByLineNumber(line))
