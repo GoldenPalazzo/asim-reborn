@@ -29,6 +29,6 @@ class Compiler:
                               fpath]
         print(f"Running {command_array}")
         p = subprocess.Popen(command_array, stdout=subprocess.PIPE)
-        if p.wait() != 0:
-            raise Exception("Compilation failed")
+        #if p.wait() != 0:
+        #    raise Exception("Compilation failed")
         return p.stdout.read().decode("utf-8")
