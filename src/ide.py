@@ -208,8 +208,13 @@ class IDE(QMainWindow):
     def compile_file(self):
         print("Clicked compile")
         if self.current_file == "":
-            QMessageBox.warning(self, "Error", "No file to compile.")
-            return
+            if self.text_edit.document().isEmpty():
+                QMessageBox.warning(self, "Error", "No file to compile.")
+                return
+            else:
+                if not self.save_as_new():
+                    QMessageBox.warning(self, "Error", "Could not save file")
+                    return
         print(f"Compiling {self.current_file}")
         msg = self.compiler.compile(self.current_file)
         self.dock.show()
