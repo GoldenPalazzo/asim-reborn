@@ -72,6 +72,7 @@ class m68k:
                 #byte = f.read(1)
 
         print(f"Starting at {self.new_base:02X} (stack {stack:02X})\n")
+        self.cpu.pulse_reset()
         runtime.reset(self.new_base, stack)
 
 
