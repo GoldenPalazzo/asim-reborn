@@ -12,7 +12,7 @@ runcfg = b68k.RunConfig()
 runtime = b68k.Runtime(cpucfg, memcfg, runcfg)
 
 base = 0x8000
-stack = 0x9000
+stack = 0x9200
 
 
 def parse_srec_line(line: str) -> Optional[Union[
