@@ -39,7 +39,7 @@ class M68KHighlighter(QSyntaxHighlighter):
         registers_re = re.compile(
                 opcodes.regex_generator(opcodes.registers),
                 re.IGNORECASE)
-        comment_re = re.compile(r';.*')
+        comment_re = re.compile('(?<![\'"])[*;]([^\'"]*)(?![\'"])')
         character_re = re.compile(r"'.'")
         string_re = re.compile(r'"[^"]*"')
         self.expr_form_couples = [(opcode_re, opcode_format),
