@@ -77,7 +77,7 @@ class Runner(QWidget):
         buttons = QHBoxLayout()
         self.step_btn = QPushButton('Step', self)
         self.step_btn.clicked.connect(self.step)
-        self.poweroff_btn = QPushButton('Poweroff', self)
+        self.poweroff_btn = QPushButton('Stop', self)
         self.poweroff_btn.clicked.connect(self.poweroff)
         poweroff_action = QAction('Stop', self)
         poweroff_action.triggered.connect(self.poweroff)
