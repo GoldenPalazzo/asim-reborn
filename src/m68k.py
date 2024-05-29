@@ -46,7 +46,6 @@ class m68k:
         b68k.api.tools.setup_breakpoints(1)
         self.found_new_base = False
         self.new_base = base
-        c = 0
         with open(fname, 'r') as f:
             for line in f.readlines():
                 parsed_line = parse_srec_line(line)
@@ -56,9 +55,9 @@ class m68k:
                 address = int.from_bytes(parsed_line[1], "big")
                 if len(parsed_line) == 3:
                     bytecode: bytes = parsed_line[2]
-                    self.c = 0
+                    c = 0
                     for dec_byte in bytecode:
-                        print(f"writing {dec_byte:02X} at {base+c:02X}")
+                        print(f"writing {dec_byte:02X} at {address+c:02X}")
                         self.mem.w8(address+c, dec_byte)
                         c+=1
                 else:
@@ -72,7 +71,7 @@ class m68k:
                 #c+=1
                 #byte = f.read(1)
 
-        print(f"Loaded {self.c} bytes and starting at {self.new_base:02X} (stack {stack:02X})\n")
+        print(f"Starting at {self.new_base:02X} (stack {stack:02X})\n")
         runtime.reset(self.new_base, stack)
 
 
