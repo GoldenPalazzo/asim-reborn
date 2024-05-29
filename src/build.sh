@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 prj_dir=$(dirname $(dirname $(readlink -f "$0")))
 bin_dir=$prj_dir/bin
@@ -24,3 +25,5 @@ if [ ! -d "$prj_dir/dist" ]; then
     mv -n dist $prj_dir/dist
 fi
 
+chmod +x $prj_dir/dist/AsimReborn/AsimReborn
+chmod +x $prj_dir/dist/AsimReborn/_internal/bin/vasmm68k_mot_unix
