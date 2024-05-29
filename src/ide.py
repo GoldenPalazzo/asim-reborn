@@ -206,6 +206,9 @@ class IDE(QMainWindow):
 
     def compile_file(self):
         print("Clicked compile")
+        if self.current_file == "":
+            QMessageBox.warning(self, "Error", "No file to compile.")
+            return
         print(f"Compiling {self.current_file}")
         msg = self.compiler.compile(self.current_file)
         self.dock.show()
