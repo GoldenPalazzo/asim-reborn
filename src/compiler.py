@@ -11,6 +11,7 @@ import path_resolver
 
 
 arguments = (
+        "-maxerrors=1",
         "-Fsrec",
         "-s37",
         "-exec=main",
