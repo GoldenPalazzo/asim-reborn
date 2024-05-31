@@ -75,7 +75,7 @@ class IDE(QMainWindow):
         super().__init__()
         self.compiler = compiler.Compiler()
         self.runner = run.Runner()
-        self.current_file: Optional[str] = None
+        self.current_file: str = ""
         self.current_lst: dict[int, int] = {}
  
         self.init_ui()
