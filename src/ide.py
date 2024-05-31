@@ -284,7 +284,7 @@ class IDE(QMainWindow):
         fname, _ = QFileDialog.getOpenFileName(self, 'Open File', '',
                                                   'M68K assembler (*.a68 .A68)'
                                                   ';;All Files (*.*)')
-        print(fname)
+        #print(fname)
         if fname:
             self.load_file(fname)
 
@@ -314,7 +314,7 @@ class IDE(QMainWindow):
         return False
 
     def compile_file(self):
-        print("Clicked compile")
+        #print("Clicked compile")
         if self.current_file == "":
             if self.text_edit.document().isEmpty():
                 QMessageBox.warning(self, "Error", "No file to compile.")
@@ -323,13 +323,13 @@ class IDE(QMainWindow):
                 if not self.save_as_new():
                     QMessageBox.warning(self, "Error", "Could not save file")
                     return
-        print(f"Compiling {self.current_file}")
+        #print(f"Compiling {self.current_file}")
         out, err = self.compiler.compile(self.current_file)
         self.dock.show()
         self.compiler_widget.setPlainText(out + err)
         if err != "":
             errors = self.compiler.get_error_lines(err)
-            print(f"errors in {errors}")
+            #print(f"errors in {errors}")
             self.highlight_errors(errors)
 
     def parse_lst(self, path: str):
@@ -338,7 +338,7 @@ class IDE(QMainWindow):
             lines = file.readlines()
             for i, line in enumerate(lines):
                 # pair: address -> line number
-                print(f"Line {i}: {line}")
+                #print(f"Line {i}: {line}")
                 s = line.split()
                 if len(s) < 3:
                     continue
@@ -346,7 +346,7 @@ class IDE(QMainWindow):
                     continue
                 address = int(s[0][3:], 16)
                 row = int(s[2][:-1])
-                print(f"Address: {address}, line: {row}")
+                #print(f"Address: {address}, line: {row}")
                 self.current_lst[address] = row
 
     def run_file(self):

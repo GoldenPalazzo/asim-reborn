@@ -13,7 +13,7 @@ else:
 def resolve_path(path: str) -> pathlib.Path:
     return (base_path / path).resolve()
 
-print(base_path)
+#print(base_path)
 compiler_path = (base_path /
                  "bin" /
                  ("vasmm68k_mot_"
