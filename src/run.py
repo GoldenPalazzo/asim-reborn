@@ -4,7 +4,7 @@ import sys
 from typing import Optional, Union, Callable, List
 import PySide6
 
-from PySide6.QtWidgets import QApplication, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QPushButton, QPlainTextEdit, QFileDialog, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QComboBox, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QPushButton, QPlainTextEdit, QFileDialog, QVBoxLayout, QWidget
 from PySide6.QtGui import QFont, QRegularExpressionValidator, QTextCursor, QAction, QTextOption, QValidator
 from PySide6.QtCore import QRegularExpression, Qt
 
@@ -25,6 +25,7 @@ class Runner(QWidget):
         self.current_instruction = QLabel("")
         self.current_instruction.setFont(QFont("MonoLisa", 18))
         self.current_instruction.setAlignment(Qt.AlignCenter)
+        self.watched_vars = {}
 
         self.init_ui()
 
@@ -47,7 +48,7 @@ class Runner(QWidget):
         reglayout.addWidget(self.sreg)
         reglayout.addWidget(QLabel("PC"))
         reglayout.addWidget(self.pc)
-        frame.addLayout(reglayout, 3, 0, 1, -1)
+        frame.addLayout(reglayout, 4, 0, 1, -1)
         # memory view
         self.memview = QPlainTextEdit()
         self.memview.setReadOnly(True)
@@ -57,34 +58,77 @@ class Runner(QWidget):
         self.memview.setTabStopDistance(40)
         self.memview.setTabChangesFocus(True)
         self.memview.setPlaceholderText("Memory")
-        frame.addWidget(self.memview, 1, 0, 1, -1)
+        frame.addWidget(self.memview, 1, 0, 1, 1)
+
+        self.varwatch = QPlainTextEdit()
+        self.varwatch.setReadOnly(True)
+        self.varwatch.setFont(QFont("MonoLisa"))
+        self.varwatch.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.varwatch.setWordWrapMode(QTextOption.NoWrap)
+        self.varwatch.setTabStopDistance(40)
+        self.varwatch.setTabChangesFocus(True)
+        self.varwatch.setPlaceholderText("Watched variables")
+        frame.addWidget(self.varwatch, 1, 1, 1, 1)
 
         seeker = QHBoxLayout()
         self.seekline = QLineEdit()
         self.seekline.setFont(QFont("MonoLisa"))
         self.seekline.setMaxLength(8)
         address_regexp = QRegularExpression("^[0-9a-fA-F]{1,8}$")
-        validator = QRegularExpressionValidator(address_regexp, self.seekline)
-        self.seekline.setValidator(validator)
+        seekvalidator = QRegularExpressionValidator(address_regexp, self.seekline)
+        self.seekline.setValidator(seekvalidator)
         self.seekline.setPlaceholderText("Seek address in hex")
         self.seekline.textChanged.connect(self.update_memview)
         seeker.addWidget(self.seekline)
         self.seek_sp = QPushButton("Seek SP", self)
         self.seek_sp.clicked.connect(lambda: self.seekline.setText(f"{self.main_cpu.cpu.r_ax(7):08X}"))
         seeker.addWidget(self.seek_sp)
-        frame.addLayout(seeker, 2, 0, 1, -1)
+        frame.addLayout(seeker, 2, 0, 1, 1)
+
+        watchvarbtns = QHBoxLayout()
+        watchvar = QHBoxLayout()
+        self.watchvaraddr = QLineEdit()
+        self.watchvaraddr.setFont(QFont("MonoLisa"))
+        self.watchvaraddr.setMaxLength(8)
+        watchvarvalidator = QRegularExpressionValidator(address_regexp, self.watchvaraddr)
+        self.watchvaraddr.setValidator(watchvarvalidator)
+        self.watchvaraddr.setPlaceholderText("Watch var address")
+        self.addrtypeddown = QComboBox()
+        self.addrtypeddown.addItems([
+            "Unsigned byte",
+            "Signed byte",
+            "Hex byte",
+            "Unsigned word",
+            "Signed word",
+            "Hex word",
+            "Unsigned long",
+            "Signed long",
+            "Hex long",
+            "ASCII char",
+            "Null termined string"])
+        watchvar.addWidget(self.watchvaraddr)
+        watchvar.addWidget(self.addrtypeddown)
+        add_btn = QPushButton('Add', self)
+        del_btn = QPushButton('Delete', self)
+        clr_btn = QPushButton('Clear', self)
+        add_btn.clicked.connect(self.add_var)
+        watchvarbtns.addWidget(add_btn)
+        watchvarbtns.addWidget(del_btn)
+        watchvarbtns.addWidget(clr_btn)
+        frame.addLayout(watchvar, 2, 1, 1, 1)
+        frame.addLayout(watchvarbtns, 3, 1, 1, 1)
 
         buttons = QHBoxLayout()
-        self.step_btn = QPushButton('Step', self)
-        self.step_btn.clicked.connect(self.step)
+        step_btn = QPushButton('Step', self)
+        step_btn.clicked.connect(self.step)
         self.poweroff_btn = QPushButton('Stop', self)
         self.poweroff_btn.clicked.connect(self.poweroff)
         poweroff_action = QAction('Stop', self)
         poweroff_action.triggered.connect(self.poweroff)
         poweroff_action.setShortcut('F8')
-        buttons.addWidget(self.step_btn)
+        buttons.addWidget(step_btn)
         buttons.addWidget(self.poweroff_btn)
-        frame.addLayout(buttons, 4, 0, 1, -1)
+        frame.addLayout(buttons, 5, 0, 1, -1)
         #frame.setRowStretch(1, 1)
         self.update_ui()
         self.setLayout(frame)
@@ -130,6 +174,50 @@ class Runner(QWidget):
             self.memview.insertPlainText("\n")
         self.memview.moveCursor(QTextCursor.Start)
 
+        self.varwatch.clear()
+        for addr, mode in self.watched_vars.items():
+            modelower: str = mode.lower()
+            var = None
+            if modelower.endswith("byte"):
+                var = int.from_bytes(
+                        self.main_cpu.get_mem(addr, 1),
+                        byteorder='big',
+                        signed=modelower.startswith("S"))
+            if modelower.endswith("char"):
+                var = self.main_cpu.get_mem(addr, 1).decode('ascii')
+            elif modelower.endswith("word"):
+                var = int.from_bytes(
+                        self.main_cpu.get_mem(addr, 2),
+                        byteorder='big',
+                        signed=modelower.startswith("S"))
+            elif modelower.endswith("long"):
+                var = int.from_bytes(
+                        self.main_cpu.get_mem(addr, 4),
+                        byteorder='big',
+                        signed=modelower.startswith("S"))
+            elif modelower.endswith("string"):
+                var = b''
+                while True:
+                    c = self.main_cpu.get_mem(addr, 1)
+                    if c == 0:
+                        break
+                    var += c
+                    addr += 1
+                if var is not None:
+                    var = var.decode('ascii')
+
+            if var is not None:
+                representation = var
+                if modelower.startswith("H"):
+                    representation = f"0x{var:08X}"
+                self.varwatch.moveCursor(QTextCursor.End)
+                self.varwatch.insertPlainText(f"0x{addr:08X} {representation}\n")
+                self.varwatch.moveCursor(QTextCursor.Start)
+
+
+    def add_var(self):
+        self.watched_vars[int(self.watchvaraddr.text(), 16)] = self.addrtypeddown.currentText()
+        self.update_memview()
 
 
     def step(self):
