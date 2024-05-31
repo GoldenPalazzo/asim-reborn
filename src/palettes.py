@@ -11,7 +11,8 @@ class Palette:
                  directive: int,
                  opcode: int,
                  registers: int,
-                 comments: int):
+                 comments: int,
+                 highlight: int):
         self.background = (background)
         self.text= (text)
         self.character = (character)
@@ -19,6 +20,7 @@ class Palette:
         self.opcode = (opcode)
         self.registers = (registers)
         self.comments = (comments)
+        self.highlight = (highlight)
 
 monokai = Palette(0x272822,
                   0xf8f8f2,
@@ -26,4 +28,5 @@ monokai = Palette(0x272822,
                   0xf92672,
                   0x66d9ef,
                   0xa6e22e,
-                  0x6d6b6d)
+                  0x6d6b6d,
+                  0x3e3d32)
