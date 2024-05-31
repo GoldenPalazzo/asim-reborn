@@ -49,7 +49,7 @@ class m68k:
         with open(fname, 'r') as f:
             for line in f.readlines():
                 parsed_line = parse_srec_line(line)
-                print(parsed_line)
+                #print(parsed_line)
                 if parsed_line == None:
                     continue
                 address = int.from_bytes(parsed_line[1], "big")
@@ -57,7 +57,7 @@ class m68k:
                     bytecode: bytes = parsed_line[2]
                     c = 0
                     for dec_byte in bytecode:
-                        print(f"writing {dec_byte:02X} at {address+c:02X}")
+                        #print(f"writing {dec_byte:02X} at {address+c:02X}")
                         self.mem.w8(address+c, dec_byte)
                         c+=1
                 else:
@@ -67,11 +67,11 @@ class m68k:
                                 b68k.api.tools.get_next_free_breakpoint(),
                                 address, MEM_FC_SUPER_MASK, None)
 
-                    print(f"found start at {self.new_base:02X}")
+                    #print(f"found start at {self.new_base:02X}")
                 #c+=1
                 #byte = f.read(1)
 
-        print(f"Starting at {self.new_base:02X} (stack {stack:02X})\n")
+        #print(f"Starting at {self.new_base:02X} (stack {stack:02X})\n")
         self.cpu.pulse_reset()
         runtime.reset(self.new_base, stack)
 
