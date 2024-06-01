@@ -1,7 +1,5 @@
 # ASIM reborn
 
-Proof of concept
-
 This is a IDE for the Motorola 68000 CPU. It features an editor, a compiler
 and a debugger.
 
@@ -9,75 +7,160 @@ I made this because my university classes are using an obsolete tool (known
 as ASIM, Ambiente di SIMulazione, literally "simulation environment") which was
 developed by Italian computer scientist/engineer Antonino Mazzeo.
 
-With the utmost respect for prof. Mazzeo, ASIM was developed in 1996, and now in
-2024 not everyone uses the same IBM laptop with Windows 95.
+The software was originally developed for Windows 95 and never had an update
+past 1996. The making of this project was out of sheer necessity to have a
+working IDE to follow the lessons that worked on Linux.
+Since I'm making it in Python, I thought to build it for Windows and OS X as
+well with `PyInstaller`.
 
-So, using `vasm` as compiler and `bare68k` as python wrapper to the `Musashi`
-M68K emulator, I decided to build a bit more modern IDE to be used for these
-classes. But most importantly, I decided to build an IDE that is able to run
-on modern computers, and also on Linux and Mac OS X.
+Using `bare68k` python library forked by me for Python 3.12 and wrapping the
+`vasm` compiler, this project now reached a usable state, with the full list
+of features below.
 
-Providing also the sources, I hope this repo will be used and forked in the
-future to keep it up to date.
+I hope this project gets picked up by someone since I'm very very very prone to
+get bored easily when a project is half completed.
 
-## Installation
+## Building
 
-Currently I'm teaching myself how to automate build processes through
-Github Actions, so probably the latest non-failed build might work right now.
+Although it's preferable to download the precompiled binary from the releases
+tab, if you ever need to build it yourself, here are the instructions.
 
-When I'll polish it a bit more, I will post a stable releases in the proper tab.
-
-If you wish to build it yourself, here are the instructions
-
-1. Download Python 3.12 following the favorite method of your OS.
+1. Download Python 3.12
 2. Clone the repo by clicking the green button or by running
+
+   ```bash
+   git clone https://github.com/GoldenPalazzo/asim-reborn.git
    ```
-   $ git clone https://github.com/GoldenPalazzo/asim-reborn.git
-   ```
+
 3. Get in the newly cloned repo
-  
+
   - I strongly advise you to create a virtual environment via
+
+    ```bash
+    python -m venv .venv
     ```
-    $ python -m venv .venv
-    ```
-    and then
-    
+
     - Linux
+
+    ```bash
+    source .venv/bin/activate
     ```
-    $ source .venv/bin/activate
-    ```
+
     - Windows
+
+    ```bat
+    .\.venv\Scripts\Activate.ps1
     ```
-    > .\.venv\Scripts\Activate.ps1
+
+### Linux / Mac OS
+
+4. Download external resources
+
+    ```bash
+    ./src/prepare_repo.sh
     ```
-5. Download external resources
-    - Linux
+
+    (make sure you have installed `brew` on OS X, and installed GNU coreutils
+    via `$ brew install coreutils`)
+5. Build vasm
+
+    ```bash
+    ./src/build_vasm.sh
     ```
-    $ ./src/prepare_repo.sh
+
+6. Build bare68k
+
+    ```bash
+    ./src/build_bare68k.sh
     ```
-    - Windows
+
+7. (MAKE SURE YOU'RE IN THE VIRTUALENVIRONMENT) Install pip dependencies
+
+    ```bash
+    python -m pip install pip pyinstaller
+    pip install -r requirements.txt
+    pip install lib/bare68k*.whl
     ```
-    > .\src\prepare_repo.bat
+
+8. Build.
+
+    ```bash
+    ./src/build.sh
     ```
-4. Install dependencies
-   ```
-   $ pip install -r requirements.txt
-   $ pip install lib/bare68k-0.1.2-cp312-cp312-osname_arch.whl
-   ```
-   changing `osname` and `arch` accordingly with the previously downloaded file.
-6. Run.
-   ```
-   $ python src/main.py
-   ```
+
+### Windows
+
+4. Download external resources
+
+    ```bat
+    .\src\prepare_repo.bat
+    ```
+
+5. (MAKE SURE YOU'RE IN THE VIRTUALENVIRONMENT) Install pip dependencies
+
+    ```bat
+    set PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
+    python -m pip install pip pyinstaller
+    pip install -r requirements.txt
+    pip install .\lib\bare68k-0.1.2-cp312-cp312-win_amd64.whl
+    ```
+
+6. Build.
+
+    ```bat
+    .\src\build.bat
+    ```
+
+The entire folder `AsimReborn` inside `dist` will be the final product of our
+build. Feel free to modify the build scripts to best suit the artifact to your
+needs (e.g. creating a single file instead of a single directory).
+
+### Using it via python
+
+You can also not build any executable and just run it via python with
+
+```bash
+python src/main.py
+```
 
 ## Usage
 
-Write whatever program you want. Compile it and then run.
+Write code as usual and then save your program via the menu or by clicking
+`<Ctrl-S>`. After saving, you can compile your program in the same directory
+it is present by clicking `<F5>`, running with `<F6>`, stepping with `<F7>`
+and stopping with `<F8>`.
 
-## Current limitations
+There are two docks: compilation and execution dock.
 
-At this moment:
-- Fonts don't render correctly in Windows
-- Mac OS build coming soon because I have to figure out how to automate the build
-  of vasm
-- There is no way to see the RAM memory. Only the registers
+- The compilation dock literally shows the output of the `vasm` assembler. Soon
+I will let the user manually choose the compilation flags. For now, they should
+work good for generally every user.
+- The execution dock features
+  - a memory viewer that shows 32 longword addresses in hex and lets you pick the
+  desired address to see.
+  - a variable watching panel: insert the address and choose the representation
+  you'd like to see for debug purposes between
+    - Unsigned/Signed/Hexadecimal byte int
+    - Unsigned/Signed/Hexadecimal word int
+    - Unsigned/Signed/Hexadecimal longword int
+    - Single ASCII character
+    - Null termined ASCII string
+  - all M68k registers in hexadecimal and formatted status register.
+  - step and stop buttons.
+
+## Features
+
+- [x] Creating, opening, saving scripts.
+- [x] Compilation and execution of M68K assembly in Motorola syntax.
+- [x] Step by step execution.
+- [ ] Fast run execution.
+- [ ] Breakpoints.
+- [x] Watching variables under different formats.
+- [x] Memory viewer and stack pointer pointer.
+- [x] Registries and formatted status register.
+- [x] Status register info dialogue.
+- [x] Compatible with ASIM written programs.
+- [x] Syntax highlighting using Monokai color scheme.
+- [ ] Customizable color scheme via settings.
+- [ ] Settings menu.
+- [x] Error highlighting at compile time.
