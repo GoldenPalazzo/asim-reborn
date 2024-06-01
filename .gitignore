@@ -1,4 +1,4 @@
-.venv
+/.venv
 /docs/*.pdf
 *.[Hh]68
 *.lst
@@ -6,10 +6,11 @@
 *.log
 __pycache__/
 *.py[cod]
-build/
-dist/
-*.manifest
-*.spec
-bin/
-res/
-lib/
+/build/
+/dist/
+/*.manifest
+/*.spec
+/bin/
+/res/*
+!/res/docs.html
+/lib/

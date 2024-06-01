@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ASIM Reborn</title>
+</head>
+<body>
+    <h1>ASIM Reborn official documentation</h1>
+    <p>WIP documentation that will be expanded over time.</p>
+
+    <h2>The status register</h2>
+    <p>The status register is a 16-bit register that contains the status of the CPU.
+    The status register is divided into 16 flags, each of which is a bit in the
+    register. The flags are as follows:</p>
+
+    <table>
+        <tr>
+            <th>15</th>
+            <th>14</th>
+            <th>13</th>
+            <th>12</th>
+            <th>11</th>
+            <th>10</th>
+            <th>9</th>
+            <th>8</th>
+            <th>7</th>
+            <th>6</th>
+            <th>5</th>
+            <th>4</th>
+            <th>3</th>
+            <th>2</th>
+            <th>1</th>
+            <th>0</th>
+        </tr>
+        <tr>
+            <td>T1</td>
+            <td>T0</td>
+            <td>S</td>
+            <td>M</td>
+            <td>-</td>
+            <td>I2</td>
+            <td>I1</td>
+            <td>I0</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>X</td>
+            <td>N</td>
+            <td>Z</td>
+            <td>V</td>
+            <td>C</td>
+        </tr>
+    </table>
+
+    <p>where:</p>
+    <ul>
+        <li>C: Carry flag</li>
+        <li>V: Overflow flag</li>
+        <li>Z: Zero flag</li>
+        <li>N: Negative flag</li>
+        <li>X: Extend flag</li>
+        <li>I0, I1, I2: Interrupt mask bits</li>
+        <li>M: Master/Interrupt switch</li>
+        <ul>
+            <li>This flag is always unset on models lower than 68020.</li>
+        </ul>
+        <li>S: Supervisor mode flag</li>
+        <li>T0, T1: Trace bit 1 and 2</li>
+        <ul>
+            <li>T0: Trace on change of program flow.</li>
+            <ul>
+                <li>This flag is always unset on models lower than 68020.</li>
+            </ul>
+            <li>T1: Trace on any instruction.</li>
+            <li>Do not set both trace bits at the same time.</li>
+        </ul>
+    </ul>
+</body>
+</html>
+
