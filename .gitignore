@@ -8,3 +8,6 @@ build/
 dist/
 *.manifest
 *.spec
+bin/
+res/
+lib/
