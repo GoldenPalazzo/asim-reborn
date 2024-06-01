@@ -20,7 +20,7 @@ class Palette:
         self.registers = (registers)
         self.comments = (comments)
 
-monokai = Palette(0x272822, 
+monokai = Palette(0x272822,
                   0xf8f8f2,
                   0xe6db74,
                   0xf92672,

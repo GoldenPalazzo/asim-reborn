@@ -6,7 +6,7 @@
 from typing import Any, Optional, Dict, Tuple, Union # "tuple" works from 3.9 onwards
 
 import bare68k as b68k
-from bare68k.consts import M68K_CPU_TYPE_68000, MEM_FC_SUPER_MASK 
+from bare68k.consts import M68K_CPU_TYPE_68000, MEM_FC_SUPER_MASK
 
 cpucfg = b68k.CPUConfig(M68K_CPU_TYPE_68000)
 memcfg = b68k.MemoryConfig()
@@ -124,7 +124,7 @@ class m68k:
         for i in range(bytelen):
             bytearray += self.mem.r8(start+i).to_bytes(1, "big")
         return bytearray
-            
+
     def poweroff(self):
         runtime.shutdown()
 

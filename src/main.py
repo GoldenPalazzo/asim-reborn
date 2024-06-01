@@ -24,12 +24,12 @@ import compiler, ide, m68k
 
 ftypes = [
     ('SREC files', '*.srec *.SREC *.h68 *.H68'),
-    ('All files', '*'), 
+    ('All files', '*'),
 ]
 
 #logging.basicConfig(filename='myapp.log', level=logging.DEBUG)
 
-def main():
+def main_old():
     if len(sys.argv) > 1:
         main_cpu = m68k.m68k()
         fname = sys.argv[1]

@@ -135,7 +135,7 @@ class Runner(QWidget):
         #frame.setRowStretch(1, 1)
         self.update_ui()
         self.setLayout(frame)
-    
+
     def load_file(self, fname: str):
         self.main_cpu.load_file(fname)
         self.update_ui()

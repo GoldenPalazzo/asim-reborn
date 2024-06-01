@@ -60,7 +60,7 @@ class M68KHighlighter(QSyntaxHighlighter):
                 start = match.start()
                 length = match.end() - start
                 self.setFormat(start, length, format)
-        
+
 class CustomTextEdit(QPlainTextEdit):
     def __init__(self):
         super().__init__()
@@ -81,7 +81,7 @@ class IDE(QMainWindow):
         self.runner = run.Runner()
         self.current_file: str = ""
         self.current_lst: dict[int, int] = {}
- 
+
         self.init_ui()
         self.highlighter = M68KHighlighter(self.text_edit.document())
         self.runner_polling = QTimer()
@@ -112,7 +112,7 @@ class IDE(QMainWindow):
                                      f"background-color: #{palettes.monokai.background:X}; "
                                      f"color: #{palettes.monokai.text:X}; "
                            " }")
- 
+
         # Compilation dock
         self.dock = QDockWidget("Compiler log", self)
         self.dock.setAllowedAreas(Qt.BottomDockWidgetArea)
@@ -133,7 +133,7 @@ class IDE(QMainWindow):
 
         self.initMenuBar()
         self.show()
-        
+
     def initMenuBar(self):
         # File menu
         new_action = QAction('New', self)
@@ -190,13 +190,13 @@ class IDE(QMainWindow):
         self.update_window_title(False)
 
     def open_file(self):
-        fname, _ = QFileDialog.getOpenFileName(self, 'Open File', '', 
+        fname, _ = QFileDialog.getOpenFileName(self, 'Open File', '',
                                                   'M68K assembler (*.a68 .A68)'
                                                   ';;All Files (*.*)')
         print(fname)
         if fname:
             self.load_file(fname)
-            
+
     def load_file(self, fname: str):
         with open(fname, 'r') as file:
             self.text_edit.setPlainText(file.read())
