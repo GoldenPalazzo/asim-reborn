@@ -1,6 +1,8 @@
 .venv
 /docs/*.pdf
 *.[Hh]68
+*.lst
+*.LIS
 *.log
 __pycache__/
 *.py[cod]
