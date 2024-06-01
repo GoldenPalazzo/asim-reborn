@@ -333,7 +333,7 @@ class IDE(QMainWindow):
         self.text_edit.setExtraSelections([])
 
     def open_docs(self):
-        self.side_dock.toggleViewAction()
+        self.side_dock.show()
         self.side_dock.widget().setCurrentIndex(1)
 
     def show_about(self):

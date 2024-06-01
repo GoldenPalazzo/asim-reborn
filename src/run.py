@@ -115,6 +115,8 @@ class Runner(QWidget):
         del_btn = QPushButton('Delete', self)
         clr_btn = QPushButton('Clear', self)
         add_btn.clicked.connect(self.add_var)
+        del_btn.clicked.connect(self.del_var)
+        clr_btn.clicked.connect(self.clr_var)
         watchvarbtns.addWidget(add_btn)
         watchvarbtns.addWidget(del_btn)
         watchvarbtns.addWidget(clr_btn)
@@ -181,23 +183,28 @@ class Runner(QWidget):
         for addr, mode in self.watched_vars.items():
             modelower: str = mode.lower()
             var = None
+            reprmode = ""
             if modelower.endswith("byte"):
                 var = int.from_bytes(
                         self.main_cpu.get_mem(addr, 1),
                         byteorder='big',
                         signed=modelower.startswith("S"))
+                reprmode = modelower[0]+"b"
             if modelower.endswith("char"):
                 var = self.main_cpu.get_mem(addr, 1).decode('ascii')
+                reprmode = "char"
             elif modelower.endswith("word"):
                 var = int.from_bytes(
                         self.main_cpu.get_mem(addr, 2),
                         byteorder='big',
                         signed=modelower.startswith("S"))
+                reprmode = modelower[0]+"w"
             elif modelower.endswith("long"):
                 var = int.from_bytes(
                         self.main_cpu.get_mem(addr, 4),
                         byteorder='big',
                         signed=modelower.startswith("S"))
+                reprmode = modelower[0]+"l"
             elif modelower.endswith("string"):
                 var = b''
                 while True:
@@ -208,13 +215,14 @@ class Runner(QWidget):
                     addr += 1
                 if var is not None:
                     var = var.decode('ascii')
+                reprmode = "string"
 
             if var is not None:
-                representation = var
+                reprval = var
                 if modelower.startswith("H"):
                     representation = f"0x{var:08X}"
                 self.varwatch.moveCursor(QTextCursor.End)
-                self.varwatch.insertPlainText(f"0x{addr:08X} {representation}\n")
+                self.varwatch.insertPlainText(f"0x{addr:08X} {reprmode: <5} {reprval}\n")
                 self.varwatch.moveCursor(QTextCursor.Start)
 
 
@@ -222,6 +230,14 @@ class Runner(QWidget):
         self.watched_vars[int(self.watchvaraddr.text(), 16)] = self.addrtypeddown.currentText()
         self.update_memview()
 
+    def del_var(self):
+        if int(self.watchvaraddr.text(), 16) in self.watched_vars:
+            del self.watched_vars[int(self.watchvaraddr.text(), 16)]
+        self.update_memview()
+
+    def clr_var(self):
+        self.watched_vars = {}
+        self.update_memview()
 
     def step(self):
         self.main_cpu.step()
