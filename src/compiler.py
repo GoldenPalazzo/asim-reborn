@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# ASIM Reborn - Simple multiplatform 68k IDE
+# Copyright (C) 2024 Francesco Palazzo
+
 import re
 import pathlib
 import platform

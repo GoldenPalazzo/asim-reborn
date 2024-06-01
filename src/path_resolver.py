@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# ASIM Reborn - Simple multiplatform 68k IDE
+# Copyright (C) 2024 Francesco Palazzo
+
 import pathlib, platform, sys
 if getattr(sys, 'frozen', False):
     base_path = pathlib.Path(sys._MEIPASS) # type: ignore

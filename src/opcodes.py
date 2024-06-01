@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# ASIM Reborn - Simple multiplatform 68k IDE
+# Copyright (C) 2024 Francesco Palazzo
+
 # m68k opcodes divided by size modifiers
 
 # for now it's just a list of opcodes

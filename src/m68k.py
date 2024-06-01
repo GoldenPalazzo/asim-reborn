@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# ASIM Reborn - Simple multiplatform 68k IDE
+# Copyright (C) 2024 Francesco Palazzo
+
 from typing import Any, Optional, Dict, Tuple, Union # "tuple" works from 3.9 onwards
 
 import bare68k as b68k

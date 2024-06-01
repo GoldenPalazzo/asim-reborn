@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# ASIM Reborn - Simple multiplatform 68k IDE
+# Copyright (C) 2024 Francesco Palazzo
+
 import sys
 from typing import Optional, Union, Callable, List
 import PySide6
