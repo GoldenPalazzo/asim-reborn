@@ -3,7 +3,7 @@
 # ASIM Reborn - Simple multiplatform 68k IDE
 # Copyright (C) 2024 Francesco Palazzo
 
-from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, QMessageBox, QTextEdit, QPlainTextEdit, QFileDialog
+from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, QMessageBox, QTextEdit, QPlainTextEdit, QFileDialog, QTabWidget
 from PySide6.QtGui import QFont, QFontDatabase, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor, QTextDocument
 from PySide6.QtCore import QFileInfo, QTimer, Qt, QEvent
 import os
@@ -12,7 +12,7 @@ from typing import Optional, Union, Callable
 import re
 import sys
 
-import compiler, run, opcodes, palettes, path_resolver
+import compiler, run, opcodes, palettes, path_resolver, help
 
 class M68KHighlighter(QSyntaxHighlighter):
     def __init__(self, parent: QTextDocument):
@@ -79,6 +79,7 @@ class IDE(QMainWindow):
         super().__init__()
         self.compiler = compiler.Compiler()
         self.runner = run.Runner()
+        self.documentation = help.Help()
         self.current_file: str = ""
         self.current_lst: dict[int, int] = {}
 
@@ -114,8 +115,9 @@ class IDE(QMainWindow):
                            " }")
 
         # Compilation dock
+
         self.dock = QDockWidget("Compiler log", self)
-        self.dock.setAllowedAreas(Qt.BottomDockWidgetArea)
+        self.dock.setAllowedAreas(Qt.AllDockWidgetAreas)
         self.compiler_widget = QPlainTextEdit()
         self.compiler_widget.setReadOnly(True)
         self.compiler_widget.setPlainText("Compiler ready.")
@@ -125,8 +127,11 @@ class IDE(QMainWindow):
 
         #Execution dock
         self.side_dock = QDockWidget("Execution", self)
-        self.side_dock.setAllowedAreas(Qt.RightDockWidgetArea)
-        self.side_dock.setWidget(self.runner)
+        self.side_dock.setAllowedAreas(Qt.AllDockWidgetAreas)
+        sidetabs = QTabWidget()
+        sidetabs.addTab(self.runner, "Runner")
+        sidetabs.addTab(self.documentation, "Documentation")
+        self.side_dock.setWidget(sidetabs)
         self.runner.poweroff_btn.clicked.connect(self.stop_highlighting)
         self.addDockWidget(Qt.RightDockWidgetArea, self.side_dock)
         self.side_dock.hide()
@@ -179,6 +184,15 @@ class IDE(QMainWindow):
         window_menu = self.menuBar().addMenu('Window')
         window_menu.addAction(self.dock.toggleViewAction())
         window_menu.addAction(self.side_dock.toggleViewAction())
+        # Help menu
+        doc_action = QAction('Documentation', self)
+        doc_action.triggered.connect(self.open_docs)
+        about_action = QAction('About', self)
+        about_action.triggered.connect(self.show_about)
+        help_menu = self.menuBar().addMenu('Help')
+        help_menu.addAction(doc_action)
+        help_menu.addAction(about_action)
+
 
     def on_text_changed(self):
         self.update_window_title(True)
@@ -274,6 +288,7 @@ class IDE(QMainWindow):
             binary = os.path.splitext(self.current_file)[0] + ".h68"
             self.runner.load_file(binary)
             self.side_dock.show()
+            self.side_dock.widget().setCurrentIndex(0)
 
     def close_event(self, event):
         event.accept()
@@ -317,6 +332,14 @@ class IDE(QMainWindow):
         self.runner_polling.stop()
         self.text_edit.setExtraSelections([])
 
+    def open_docs(self):
+        self.side_dock.toggleViewAction()
+        self.side_dock.widget().setCurrentIndex(1)
+
+    def show_about(self):
+        QMessageBox.about(self, "About",
+                          "ASIM Reborn - Simple multiplatform 68k IDE\n"
+                          "Version 0.1\n")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
