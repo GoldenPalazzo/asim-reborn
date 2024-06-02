@@ -4,23 +4,20 @@
 # Copyright (C) 2024 Francesco Palazzo
 
 from PySide6.QtCore import QUrl
-from PySide6.QtWidgets import QVBoxLayout, QWidget
-from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel
 
 import path_resolver
 
 class Help(QWidget):
     def __init__(self):
         super().__init__()
-
+        frame = QVBoxLayout()
         self.setWindowTitle("Help")
         self.resize(400, 300)
-        frame = QVBoxLayout()
-        self.webview = QWebEngineView()
         doc_url = str(path_resolver.resolve_path("res/docs.html"))
-        print(doc_url)
-        self.webview.load(QUrl.fromLocalFile(doc_url))
-        frame.addWidget(self.webview)
+        text = open(doc_url).read()
+        docs = QLabel(text)
+        frame.addWidget(docs)
         self.setLayout(frame)
         self.show()
 
