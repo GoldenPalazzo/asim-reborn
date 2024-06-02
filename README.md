@@ -20,6 +20,24 @@ of features below.
 I hope this project gets picked up by someone since I'm very very very prone to
 get bored easily when a project is half completed.
 
+## Table of contents
+
+1. [Installation](#install)
+2. [Building](#build)
+3. [Usage](#usage)
+4. [Features](#features)
+5. [Collaboration and issues](#collab)
+
+<a id="install"></a>
+## Installation
+
+Check out the [releases](https://github.com/GoldenPalazzo/asim-reborn/releases)
+tab and follow the instructions to install the latest version.
+
+If you are a masochist or actually need to build it yourself for your needs,
+follow the instructions below.
+
+<a id="build"></a>
 ## Building
 
 Although it's preferable to download the precompiled binary from the releases
@@ -123,6 +141,7 @@ You can also not build any executable and just run it via python with
 python src/main.py
 ```
 
+<a id="usage"></a>
 ## Usage
 
 Write code as usual and then save your program via the menu or by clicking
@@ -148,6 +167,7 @@ work good for generally every user.
   - all M68k registers in hexadecimal and formatted status register.
   - step and stop buttons.
 
+<a id="features"></a>
 ## Features
 
 - [x] Creating, opening, saving scripts.
@@ -164,3 +184,10 @@ work good for generally every user.
 - [ ] Customizable color scheme via settings.
 - [ ] Settings menu.
 - [x] Error highlighting at compile time.
+
+<a id="collab"></a>
+## Collaboration and issues
+
+I'm open to all kind of pull requests at the moment, and also any kind of
+bug report in the issues tab.
+
