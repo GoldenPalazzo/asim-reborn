@@ -1,5 +1,8 @@
 name: Build executable
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - '**/README.md'
 jobs:
   Build-Exe:
     strategy:
