@@ -73,6 +73,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.art }}
-          path: asimbreborn.tar
+          path: asimreborn.tar
           if-no-files-found: error
 
