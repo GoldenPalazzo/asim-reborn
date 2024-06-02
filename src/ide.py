@@ -354,18 +354,29 @@ class IDE(QMainWindow):
         if self.current_file == None:
             QMessageBox.warning(self, "Error", "No file to run.")
             return
-        lst = os.path.splitext(self.current_file)[0] + ".lst"
-        if not os.path.exists(lst):
+        lst = ""
+        for ext in (".lst", ".LIS"):
+            lst = os.path.splitext(self.current_file)[0] + ext
+            if os.path.exists(lst):
+                lst = os.path.splitext(self.current_file)[0] + ext
+                self.parse_lst(lst)
+                self.runner_polling.start(100)
+                break
+        else:
             QMessageBox.warning(self, "Error", "No lst file to run. Line highlighting disabled.")
             self.runner_polling.stop()
+        binary = os.path.splitext(self.current_file)[0] + ".h68"
+        for ext in (".h68", ".H68"):
+            bin = os.path.splitext(self.current_file)[0] + ext
+            if os.path.exists(bin):
+                self.runner.load_file(bin)
+                self.side_dock.show()
+                self.side_dock.widget().setCurrentIndex(0)
+                break
         else:
-            self.parse_lst(lst)
-            self.runner_polling.start(100)
-        if self.current_file != None:
-            binary = os.path.splitext(self.current_file)[0] + ".h68"
-            self.runner.load_file(binary)
-            self.side_dock.show()
-            self.side_dock.widget().setCurrentIndex(0)
+            QMessageBox.warning(self, "Error", "No binary file to run.")
+            self.runner_polling.stop()
+            return
 
     def close_event(self, event):
         event.accept()
