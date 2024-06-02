@@ -52,7 +52,7 @@ jobs:
       - name: Build bare68k (*NIX)
         if: runner.os != 'Windows'
         run: ${{ matrix.build_b68k }}
-      - name: Install pip dependencies (UNIX) 
+      - name: Install pip dependencies (UNIX)
         if: runner.os != 'Windows'
         run: |
           python -m pip install pip pyinstaller
@@ -67,10 +67,12 @@ jobs:
           pip install ${{ matrix.b68k }}
       - name: Build executable
         run: ${{ matrix.build }}
+      - name: Compress dist dir
+        run: tar -cf asimreborn.tar ${{ matrix.dist }}
       - name: Deploy artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.art }}
-          path: ${{ matrix.dist }}
+          path: asimbreborn.tar
           if-no-files-found: error
 
