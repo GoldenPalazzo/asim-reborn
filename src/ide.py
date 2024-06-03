@@ -165,6 +165,7 @@ class IDE(QMainWindow):
         self.compiler = compiler.Compiler()
         self.runner = run.Runner()
         self.documentation = help.Help()
+        self.about = help.About()
         self.current_file: str = ""
         self.current_lst: dict[int, int] = {}
 
@@ -433,9 +434,7 @@ class IDE(QMainWindow):
         self.side_dock.widget().setCurrentIndex(1)
 
     def show_about(self):
-        QMessageBox.about(self, "About",
-                          "ASIM Reborn - Simple multiplatform 68k IDE\n"
-                          "Version 0.1\n")
+        self.about.show()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
