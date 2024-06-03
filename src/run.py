@@ -184,39 +184,42 @@ class Runner(QWidget):
             modelower: str = mode.lower()
             var = None
             reprmode = ""
-            if modelower.endswith("byte"):
-                var = int.from_bytes(
-                        self.main_cpu.get_mem(addr, 1),
-                        byteorder='big',
-                        signed=modelower.startswith("S"))
-                reprmode = modelower[0]+"b"
-            if modelower.endswith("char"):
-                var = self.main_cpu.get_mem(addr, 1).decode('ascii')
-                reprmode = "char"
-            elif modelower.endswith("word"):
-                var = int.from_bytes(
-                        self.main_cpu.get_mem(addr, 2),
-                        byteorder='big',
-                        signed=modelower.startswith("S"))
-                reprmode = modelower[0]+"w"
-            elif modelower.endswith("long"):
-                var = int.from_bytes(
-                        self.main_cpu.get_mem(addr, 4),
-                        byteorder='big',
-                        signed=modelower.startswith("S"))
-                reprmode = modelower[0]+"l"
-            elif modelower.endswith("string"):
-                var = b''
-                offset = 0
-                while True:
-                    c = self.main_cpu.get_mem(addr+offset, 1)
-                    if c == b'\x00':
-                        break
-                    var += c
-                    offset += 1
-                if var is not None:
-                    var = var.decode('ascii')
-                reprmode = "string"
+            try:
+                if modelower.endswith("byte"):
+                    var = int.from_bytes(
+                            self.main_cpu.get_mem(addr, 1),
+                            byteorder='big',
+                            signed=modelower.startswith("S"))
+                    reprmode = modelower[0]+"b"
+                if modelower.endswith("char"):
+                    var = self.main_cpu.get_mem(addr, 1).decode('ascii')
+                    reprmode = "char"
+                elif modelower.endswith("word"):
+                    var = int.from_bytes(
+                            self.main_cpu.get_mem(addr, 2),
+                            byteorder='big',
+                            signed=modelower.startswith("S"))
+                    reprmode = modelower[0]+"w"
+                elif modelower.endswith("long"):
+                    var = int.from_bytes(
+                            self.main_cpu.get_mem(addr, 4),
+                            byteorder='big',
+                            signed=modelower.startswith("S"))
+                    reprmode = modelower[0]+"l"
+                elif modelower.endswith("string"):
+                    var = b''
+                    offset = 0
+                    while True:
+                        c = self.main_cpu.get_mem(addr+offset, 1)
+                        if c == b'\x00':
+                            break
+                        var += c
+                        offset += 1
+                    if var is not None:
+                        var = var.decode('ascii')
+                    reprmode = "string"
+            except ValueError:
+                var = "ERROR: Invalid address"
 
             if var is not None:
                 reprval = var
