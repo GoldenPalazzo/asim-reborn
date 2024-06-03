@@ -13,4 +13,5 @@ __pycache__/
 /bin/
 /res/*
 !/res/docs.html
+!/res/*.ico
 /lib/
