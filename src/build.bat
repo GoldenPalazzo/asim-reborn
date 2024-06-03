@@ -23,6 +23,8 @@ REM Run pyinstaller
 pyinstaller --clean --onedir --name "AsimReborn" ^
     --add-binary="%bin_dir_rel%\vasmm68k_mot_win.exe:bin" ^
     --add-data="%res_dir_rel%\*:res" ^
+    --windowed ^
+    --icon="%res_dir_rel%\logo_256x256.ico" ^
     "%src_dir%\main.py"
 
 REM Cleanup
