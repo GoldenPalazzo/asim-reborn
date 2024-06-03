@@ -4,7 +4,7 @@
 # Copyright (C) 2024 Francesco Palazzo
 
 from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, QMessageBox, QTextEdit, QPlainTextEdit, QFileDialog, QTabWidget, QWidget
-from PySide6.QtGui import QFont, QFontDatabase, QPainter, QSyntaxHighlighter, QTextFormat, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor, QTextDocument
+from PySide6.QtGui import QFont, QFontDatabase, QPainter, QSyntaxHighlighter, QTextFormat, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor, QTextDocument, QIcon
 from PySide6.QtCore import QFileInfo, QTimer, Qt, QEvent, QSize, QRect
 
 import os
@@ -154,6 +154,14 @@ class CustomTextEdit(QPlainTextEdit):
 class IDE(QMainWindow):
     def __init__(self, file: Optional[str] = None):
         super().__init__()
+
+        icon = QIcon()
+        icon.addFile(str(path_resolver.resolve_path("res/logo_256x256.ico")),
+                     QSize(256, 256))
+        icon.addFile(str(path_resolver.resolve_path("res/logo_24x24.ico")),
+                     QSize(24, 24))
+        self.setWindowIcon(icon)
+        self.setWindowTitle("ASIM Reborn")
         self.compiler = compiler.Compiler()
         self.runner = run.Runner()
         self.documentation = help.Help()
