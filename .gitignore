@@ -14,4 +14,6 @@ __pycache__/
 /res/*
 !/res/docs.html
 !/res/*.ico
+!/res/*.icns
+!/res/logo_256x256.png
 /lib/

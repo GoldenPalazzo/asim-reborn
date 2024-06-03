@@ -18,7 +18,7 @@ pyinstaller --clean --onedir --name "AsimReborn" \
     --add-binary="$(abs_to_rel $bin_dir)/vasmm68k_mot_unix:bin" \
     --add-data="$(abs_to_rel $res_dir)/*:res" \
     --windowed \
-    --icon="$(abs_to_rel $res_dir)/logo_256x256.ico" \
+    --icon="$(abs_to_rel $res_dir)/logo_256x256.icns" \
     $src_dir/main.py
 
 
