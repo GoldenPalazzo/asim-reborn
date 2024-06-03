@@ -207,12 +207,13 @@ class Runner(QWidget):
                 reprmode = modelower[0]+"l"
             elif modelower.endswith("string"):
                 var = b''
+                offset = 0
                 while True:
-                    c = self.main_cpu.get_mem(addr, 1)
-                    if c == 0:
+                    c = self.main_cpu.get_mem(addr+offset, 1)
+                    if c == b'\x00':
                         break
                     var += c
-                    addr += 1
+                    offset += 1
                 if var is not None:
                     var = var.decode('ascii')
                 reprmode = "string"
