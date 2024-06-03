@@ -1,4 +1,10 @@
-# ASIM reborn
+<p align="center">
+    <img width="512" src="https://raw.githubusercontent.com/GoldenPalazzo/asim-reborn/main/logo.png"></img>
+</p>
+
+<h1 align="center">
+    ASIM Reborn - Simple multiplatform 68k IDE
+</h1>
 
 This is a IDE for the Motorola 68000 CPU. It features an editor, a compiler
 and a debugger.
