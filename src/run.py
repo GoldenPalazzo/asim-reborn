@@ -223,10 +223,10 @@ class Runner(QWidget):
 
             if var is not None:
                 reprval = var
-                if modelower.startswith("H"):
+                if modelower.startswith("h"):
                     representation = f"0x{var:08X}"
                 self.varwatch.moveCursor(QTextCursor.End)
-                self.varwatch.insertPlainText(f"0x{addr:08X} {reprmode: <5} {reprval}\n")
+                self.varwatch.insertPlainText(f"0x{addr:08X} {reprmode: <7} {reprval}\n")
                 self.varwatch.moveCursor(QTextCursor.Start)
 
 
