@@ -141,7 +141,7 @@ class Runner(QWidget):
         self.watchvaraddr.setPlaceholderText("Watch var address")
         add_btn = QPushButton('Add', self)
         clr_btn = QPushButton('Clear', self)
-        add_btn.clicked.connect(self.add_var)
+        add_btn.clicked.connect(lambda: self.add_var())
         clr_btn.clicked.connect(self.clr_var)
         watchvarbtns.addWidget(add_btn)
         watchvarbtns.addWidget(clr_btn)
@@ -252,7 +252,7 @@ class Runner(QWidget):
 
 
     def add_var(self, addr: Optional[int] = None, name: str = ""):
-        if addr is None:
+        if addr == None:
             addr = int(self.watchvaraddr.text(), 16)
         if name == "":
             name = f"userdef_{len(self.watched_vars)}"
