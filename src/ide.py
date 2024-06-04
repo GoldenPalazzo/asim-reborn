@@ -343,18 +343,37 @@ class IDE(QMainWindow):
 
     def parse_lst(self, path: str):
         valid_line_re = re.compile(r'^[0-9A-Fa-f]{2}:[0-9A-Fa-f]{8}$')
+        valid_symbol_re = re.compile(r'.*\s+A:[0-9A-Fa-f]{8}')
         with open(path, 'r') as file:
             lines = file.readlines()
+            symbols_mode = False
             for i, line in enumerate(lines):
                 # pair: address -> line number
                 #print(f"Line {i}: {line}")
+                if line.startswith("Symbols by name"):
+                    symbols_mode = True
+                    continue
                 s = line.split()
+                if symbols_mode:
+                    if line == "\n":
+                        print("End of symbols")
+                        symbols_mode = False
+                        break
+                    if len(s) < 2:
+                        continue
+                    if not valid_symbol_re.match(line):
+                        continue
+                    address = int(s[1][2:], 16)
+                    row = i
+                    #print(f"Address: {address}, line: {row}")
+                    continue
                 if len(s) < 3:
                     continue
                 if not valid_line_re.match(s[0]):
                     continue
                 address = int(s[0][3:], 16)
                 row = int(s[2][:-1])
+                #print(s[2].lower())
                 #print(f"Address: {address}, line: {row}")
                 self.current_lst[address] = row
 
