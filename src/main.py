@@ -20,7 +20,7 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
-import compiler, ide, m68k
+import compiler, ide, m68k, config
 
 ftypes = [
     ('SREC files', '*.srec *.SREC *.h68 *.H68'),
@@ -50,8 +50,8 @@ def main_old():
         #app.mainloop()
 
 def main():
+    cfg = config.Config().config
     app = QApplication(sys.argv)
-    main_window = ide.IDE(sys.argv[1] if len(sys.argv) > 1 else None)
     dark_stylesheet = """
         QWidget {
             background-color: #2E2E2E;

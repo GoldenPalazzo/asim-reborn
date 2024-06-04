@@ -27,9 +27,9 @@ class LineNumber(QWidget):
         self.editor.lineNumberAreaPaintEvent(event)
 
 class M68KHighlighter(QSyntaxHighlighter):
-    def __init__(self, parent: QTextDocument):
+    def __init__(self, parent: QTextDocument, palette: palettes.Palette = palettes.monokai):
         super().__init__(parent)
-        self.init_formats(palettes.monokai)
+        self.init_formats(palette)
     def init_formats(self, palette: palettes.Palette):
         opcode_format = QTextCharFormat()
         opcode_format.setForeground(QColor(palette.opcode))
@@ -74,14 +74,14 @@ class M68KHighlighter(QSyntaxHighlighter):
                 self.setFormat(start, length, format)
 
 class CustomTextEdit(QPlainTextEdit):
-    def __init__(self):
+    def __init__(self, palette: palettes.Palette = palettes.monokai):
         super().__init__()
+        self.palette = palette
         self.tab_size = 4
         self.setCursorWidth(3)
         self.lineNumberArea = LineNumber(self)
         self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
         self.updateRequest.connect(self.updateLineNumberArea)
-        self.cursorPositionChanged.connect(self.highlightCurrentLine)
         self.updateLineNumberAreaWidth(0)
 
     def lineNumberAreaWidth(self):
@@ -117,6 +117,7 @@ class CustomTextEdit(QPlainTextEdit):
             e = QKeyEvent(QEvent.KeyPress, Qt.Key_Space, Qt.KeyboardModifiers(e.nativeModifiers()),
                               " "*spaces)
         super().keyPressEvent(e)
+        self.highlightCurrentLine()
         #print(self.textCursor().columnNumber())
 
     def lineNumberAreaPaintEvent(self, event):
@@ -129,7 +130,7 @@ class CustomTextEdit(QPlainTextEdit):
         while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():
                 number = str(block_number + 1)
-                painter.setPen(QColor(palettes.monokai.text))
+                painter.setPen(QColor(self.palette.text))
                 painter.drawText(0, int(top), self.lineNumberArea.width(), self.fontMetrics().height(),
                                  Qt.AlignCenter, number)
             block = block.next()
@@ -142,17 +143,16 @@ class CustomTextEdit(QPlainTextEdit):
 
         if not self.isReadOnly():
             selection = QTextEdit.ExtraSelection()
-            selection.format.setBackground(QColor(palettes.monokai.highlight))
+            selection.format.setBackground(QColor(self.palette.highlight))
             selection.format.setProperty(QTextFormat.FullWidthSelection, True)
             selection.cursor = self.textCursor()
             selection.cursor.clearSelection()
             extraSelections.append(selection)
-
         self.setExtraSelections(extraSelections)
 
 
 class IDE(QMainWindow):
-    def __init__(self, file: Optional[str] = None):
+    def __init__(self, file: Optional[str] = None, config: dict = {}):
         super().__init__()
 
         icon = QIcon()
@@ -169,35 +169,40 @@ class IDE(QMainWindow):
         self.current_file: str = ""
         self.current_lst: dict[int, int] = {}
 
+        editor_config = config.get("editor", {})
+        self.font = editor_config.get("font-family", self.setup_monolisa())
+        self.font_size = int(editor_config.get("font-size", 16))
+        self.palette = palettes.dict_to_palette(editor_config.get("palette", {}),
+                                                palettes.monokai)
         self.init_ui()
-        self.highlighter = M68KHighlighter(self.text_edit.document())
+        self.highlighter = M68KHighlighter(self.text_edit.document(), self.palette)
         self.runner_polling = QTimer()
         self.runner_polling.timeout.connect(self.update_highlighted_running_line)
 
         if file:
             self.current_file = file
             self.load_file(file)
-
-    def init_ui(self):
-        self.text_edit = CustomTextEdit()
-        self.text_edit.tab_size = 8
-        self.text_edit.setLineWrapMode(QPlainTextEdit.NoWrap)
+    def setup_monolisa(self) -> str:
         font_path = str(path_resolver.resolve_path("res/MonoLisa-Regular.ttf"))
-        default_font = "MonoLisa"
         found_font = QFontDatabase.addApplicationFont(font_path)
         if found_font == -1:
-            print("MonoLisa font not found, fallbacking Monospace")
-            default_font = "Monospace"
+            return "Monospace"
+        return "MonoLisa"
+
+    def init_ui(self):
+        self.text_edit = CustomTextEdit(self.palette)
+        self.text_edit.tab_size = 8
+        self.text_edit.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.setCentralWidget(self.text_edit)
         self.text_edit.textChanged.connect(self.on_text_changed)
 
         self.setGeometry(100, 100, 800, 600)
         self.update_window_title(False)
         self.text_edit.setStyleSheet("QPlainTextEdit { "
-                                     f"font-family: '{default_font}'; "
-                                     "font-size: 16pt; "
-                                     f"background-color: #{palettes.monokai.background:X}; "
-                                     f"color: #{palettes.monokai.text:X}; "
+                                     f"font-family: '{self.font}'; "
+                                     f"font-size: {self.font_size}pt; "
+                                     f"background-color: {self.palette.background}; "
+                                     f"color: {self.palette.text}; "
                            " }")
 
         # Compilation dock
