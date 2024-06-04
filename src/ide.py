@@ -366,6 +366,7 @@ class IDE(QMainWindow):
                     address = int(s[1][2:], 16)
                     row = i
                     #print(f"Address: {address}, line: {row}")
+                    self.runner.add_var(address, s[0])
                     continue
                 if len(s) < 3:
                     continue

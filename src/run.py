@@ -7,11 +7,49 @@ import sys
 from typing import Optional, Union, Callable, List
 import PySide6
 
-from PySide6.QtWidgets import QApplication, QComboBox, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QPushButton, QPlainTextEdit, QFileDialog, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QComboBox, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QPushButton, QPlainTextEdit, QFileDialog, QVBoxLayout, QWidget, QScrollArea
 from PySide6.QtGui import QFont, QRegularExpressionValidator, QTextCursor, QAction, QTextOption, QValidator
 from PySide6.QtCore import QRegularExpression, Qt
 
 import m68k
+
+admitted_modes = [
+            "Unsigned byte",
+            "Signed byte",
+            "Hex byte",
+            "Unsigned word",
+            "Signed word",
+            "Hex word",
+            "Unsigned long",
+            "Signed long",
+            "Hex long",
+            "ASCII char",
+            "Null termined string"]
+
+class Variable(QWidget):
+    def __init__(self, addr: int, name: str = ""):
+        super().__init__()
+        self.addr = addr
+        self.name = name
+        addr_label = QLabel(f"{self.name} 0x{addr:08X}")
+        self.val_label = QLabel("0")
+        self.mode_select = QComboBox()
+        self.mode_select.addItems(admitted_modes)
+        #self.mode_select.currentIndexChanged.connect(lambda: self.update_val(self.val))
+        layout = QHBoxLayout()
+        layout.addWidget(addr_label)
+        layout.addWidget(self.mode_select)
+        layout.addWidget(self.val_label)
+        self.del_btn = QPushButton('Delete', self)
+        layout.addWidget(self.del_btn)
+        self.setLayout(layout)
+
+    def update_val(self, val: str):
+        self.val_label.setText(val)
+
+    def get_mode(self) -> str:
+        return self.mode_select.currentText().lower()
+
 
 class Runner(QWidget):
 
@@ -28,7 +66,7 @@ class Runner(QWidget):
         self.current_instruction = QLabel("")
         self.current_instruction.setFont(QFont("MonoLisa", 18))
         self.current_instruction.setAlignment(Qt.AlignCenter)
-        self.watched_vars = {}
+        self.watched_vars: list[Variable]  = []
 
         self.init_ui()
 
@@ -63,15 +101,21 @@ class Runner(QWidget):
         self.memview.setPlaceholderText("Memory")
         frame.addWidget(self.memview, 1, 0, 1, 1)
 
-        self.varwatch = QPlainTextEdit()
-        self.varwatch.setReadOnly(True)
-        self.varwatch.setFont(QFont("MonoLisa"))
-        self.varwatch.setLineWrapMode(QPlainTextEdit.NoWrap)
-        self.varwatch.setWordWrapMode(QTextOption.NoWrap)
-        self.varwatch.setTabStopDistance(40)
-        self.varwatch.setTabChangesFocus(True)
-        self.varwatch.setPlaceholderText("Watched variables")
-        frame.addWidget(self.varwatch, 1, 1, 1, 1)
+#         self.varwatch = QPlainTextEdit()
+        # self.varwatch.setReadOnly(True)
+        # self.varwatch.setFont(QFont("MonoLisa"))
+        # self.varwatch.setLineWrapMode(QPlainTextEdit.NoWrap)
+        # self.varwatch.setWordWrapMode(QTextOption.NoWrap)
+        # self.varwatch.setTabStopDistance(40)
+        # self.varwatch.setTabChangesFocus(True)
+#         self.varwatch.setPlaceholderText("Watched variables")
+        scrollvars = QScrollArea()
+        scrollvars.setWidgetResizable(True)
+        dummy_widget = QWidget()
+        self.varwatch = QVBoxLayout()
+        dummy_widget.setLayout(self.varwatch)
+        scrollvars.setWidget(dummy_widget)
+        frame.addWidget(scrollvars, 1, 1, 1, 1)
 
         seeker = QHBoxLayout()
         self.seekline = QLineEdit()
@@ -89,38 +133,19 @@ class Runner(QWidget):
         frame.addLayout(seeker, 2, 0, 1, 1)
 
         watchvarbtns = QHBoxLayout()
-        watchvar = QHBoxLayout()
         self.watchvaraddr = QLineEdit()
         self.watchvaraddr.setFont(QFont("MonoLisa"))
         self.watchvaraddr.setMaxLength(8)
         watchvarvalidator = QRegularExpressionValidator(address_regexp, self.watchvaraddr)
         self.watchvaraddr.setValidator(watchvarvalidator)
         self.watchvaraddr.setPlaceholderText("Watch var address")
-        self.addrtypeddown = QComboBox()
-        self.addrtypeddown.addItems([
-            "Unsigned byte",
-            "Signed byte",
-            "Hex byte",
-            "Unsigned word",
-            "Signed word",
-            "Hex word",
-            "Unsigned long",
-            "Signed long",
-            "Hex long",
-            "ASCII char",
-            "Null termined string"])
-        watchvar.addWidget(self.watchvaraddr)
-        watchvar.addWidget(self.addrtypeddown)
         add_btn = QPushButton('Add', self)
-        del_btn = QPushButton('Delete', self)
         clr_btn = QPushButton('Clear', self)
         add_btn.clicked.connect(self.add_var)
-        del_btn.clicked.connect(self.del_var)
         clr_btn.clicked.connect(self.clr_var)
         watchvarbtns.addWidget(add_btn)
-        watchvarbtns.addWidget(del_btn)
         watchvarbtns.addWidget(clr_btn)
-        frame.addLayout(watchvar, 2, 1, 1, 1)
+        frame.addWidget(self.watchvaraddr, 2, 1, 1, 1)
         frame.addLayout(watchvarbtns, 3, 1, 1, 1)
 
         buttons = QHBoxLayout()
@@ -179,68 +204,76 @@ class Runner(QWidget):
             self.memview.insertPlainText("\n")
         self.memview.moveCursor(QTextCursor.Start)
 
-        self.varwatch.clear()
-        for addr, mode in self.watched_vars.items():
-            modelower: str = mode.lower()
-            var = None
-            reprmode = ""
-            try:
-                if modelower.endswith("byte"):
-                    var = int.from_bytes(
-                            self.main_cpu.get_mem(addr, 1),
-                            byteorder='big',
-                            signed=modelower.startswith("S"))
-                    reprmode = modelower[0]+"b"
-                if modelower.endswith("char"):
-                    var = self.main_cpu.get_mem(addr, 1).decode('ascii')
-                    reprmode = "char"
-                elif modelower.endswith("word"):
-                    var = int.from_bytes(
-                            self.main_cpu.get_mem(addr, 2),
-                            byteorder='big',
-                            signed=modelower.startswith("S"))
-                    reprmode = modelower[0]+"w"
-                elif modelower.endswith("long"):
-                    var = int.from_bytes(
-                            self.main_cpu.get_mem(addr, 4),
-                            byteorder='big',
-                            signed=modelower.startswith("S"))
-                    reprmode = modelower[0]+"l"
-                elif modelower.endswith("string"):
-                    var = b''
-                    offset = 0
-                    while True:
-                        c = self.main_cpu.get_mem(addr+offset, 1)
-                        if c == b'\x00':
-                            break
-                        var += c
-                        offset += 1
-                    if var is not None:
-                        var = var.decode('ascii')
-                    reprmode = "string"
-            except ValueError:
-                var = "ERROR: Invalid address"
+        for var in self.watched_vars:
+            self.update_var(var)
 
-            if var is not None:
-                reprval = var
-                if modelower.startswith("h"):
-                    reprval = f"0x{var:08X}"
-                self.varwatch.moveCursor(QTextCursor.End)
-                self.varwatch.insertPlainText(f"0x{addr:08X} {reprmode: <7} {reprval}\n")
-                self.varwatch.moveCursor(QTextCursor.Start)
+    def update_var(self, var: Variable) -> bool:
+        val = ""
+        addr = var.addr
+        mode = var.get_mode()
+        try:
+            if mode.endswith("byte"):
+                val = int.from_bytes(
+                        self.main_cpu.get_mem(addr, 1),
+                        byteorder='big',
+                        signed=mode.startswith("s"))
+                val = f"{val:02X}" if mode.startswith("h") else str(val)
+            elif mode.endswith("char"):
+                val = self.main_cpu.get_mem(addr, 1).decode('ascii')
+            elif mode.endswith("word"):
+                val = int.from_bytes(
+                        self.main_cpu.get_mem(addr, 2),
+                        byteorder='big',
+                        signed=mode.startswith("s"))
+                val = f"{val:04X}" if mode.startswith("h") else str(val)
+            elif mode.endswith("long"):
+                val = int.from_bytes(
+                        self.main_cpu.get_mem(addr, 4),
+                        byteorder='big',
+                        signed=mode.startswith("S"))
+                val = f"{val:08X}" if mode.startswith("h") else str(val)
+            elif mode.endswith("string"):
+                val = b''
+                offset = 0
+                while True:
+                    c = self.main_cpu.get_mem(addr+offset, 1)
+                    if c == b'\x00':
+                        break
+                    val += c
+                    offset += 1
+                val = val.decode('ascii')
+        except ValueError:
+            val = "ERROR: Invalid address"
+
+        if val != "":
+            var.update_val(val)
+            return True
+        return False
 
 
-    def add_var(self):
-        self.watched_vars[int(self.watchvaraddr.text(), 16)] = self.addrtypeddown.currentText()
-        self.update_memview()
+    def add_var(self, addr: Optional[int] = None, name: str = ""):
+        if addr is None:
+            addr = int(self.watchvaraddr.text(), 16)
+        if name == "":
+            name = f"userdef_{len(self.watched_vars)}"
+        print(f"Adding var {addr:08X}")
+        var = Variable(addr, name)
+        self.watched_vars.append(var)
+        var.mode_select.currentIndexChanged.connect(lambda: self.update_var(var))
+        var.del_btn.clicked.connect(lambda: self.del_var(var))
+        self.watchvaraddr.clear()
+        self.varwatch.addWidget(var)
 
-    def del_var(self):
-        if int(self.watchvaraddr.text(), 16) in self.watched_vars:
-            del self.watched_vars[int(self.watchvaraddr.text(), 16)]
+    def del_var(self, var: Variable):
+        self.watched_vars.remove(var)
+        var.deleteLater()
         self.update_memview()
 
     def clr_var(self):
-        self.watched_vars = {}
+        for var in self.watched_vars:
+            self.varwatch.removeWidget(var)
+            var.deleteLater()
+        self.watched_vars.clear()
         self.update_memview()
 
     def step(self):
@@ -248,7 +281,7 @@ class Runner(QWidget):
         self.update_ui()
 
     def poweroff(self):
-        self.main_cpu.cpu.pulse_reset()
+        self.main_cpu.poweroff()
         self.current_instruction.setText("Stopped execution")
 
 
