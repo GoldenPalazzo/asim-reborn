@@ -52,6 +52,30 @@ def main_old():
 def main():
     app = QApplication(sys.argv)
     main_window = ide.IDE(sys.argv[1] if len(sys.argv) > 1 else None)
+    dark_stylesheet = """
+        QWidget {
+            background-color: #2E2E2E;
+            color: #FFFFFF;
+        }
+        QScrollArea {
+            background-color: #2E2E2E;
+        }
+        QLabel {
+            color: #FFFFFF;
+        }
+        QPushButton {
+            background-color: #4A4A4A;
+            color: #FFFFFF;
+            border: 1px solid #5A5A5A;
+            padding: 5px;
+        }
+        QPushButton:hover {
+            background-color: #5A5A5A;
+        }
+    """
+    app.setStyleSheet(dark_stylesheet)
+    main_window = ide.IDE(sys.argv[1] if len(sys.argv) > 1 else None,
+                          config=cfg)
     sys.exit(app.exec())
 if __name__ == "__main__":
     main()
