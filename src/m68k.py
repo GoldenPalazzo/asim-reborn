@@ -12,7 +12,6 @@ cpucfg = b68k.CPUConfig(M68K_CPU_TYPE_68000)
 memcfg = b68k.MemoryConfig()
 memcfg.add_ram_range(0, 2)
 runcfg = b68k.RunConfig()
-runtime = b68k.Runtime(cpucfg, memcfg, runcfg)
 
 base = 0x8000
 stack = 0x9200
@@ -41,11 +40,13 @@ def parse_srec_line(line: str) -> Optional[Union[
 
 class m68k:
     def __init__(self):
-        self.mem = runtime.get_mem()
-        self.cpu = runtime.get_cpu()
+        self.runtime = b68k.Runtime(cpucfg, memcfg, runcfg)
+        self.mem = self.runtime.get_mem()
+        self.cpu = self.runtime.get_cpu()
         self.new_base = base
 
     def load_file(self, fname: str):
+        self.reset()
         b68k.api.tools.setup_breakpoints(1)
         self.found_new_base = False
         self.new_base = base
@@ -75,9 +76,11 @@ class m68k:
                 #byte = f.read(1)
 
         #print(f"Starting at {self.new_base:02X} (stack {stack:02X})\n")
-        self.cpu.pulse_reset()
-        runtime.reset(self.new_base, stack)
+        self.runtime.reset(self.new_base, stack)
 
+    def reset(self):
+        self.poweroff()
+        self.runtime = b68k.Runtime(cpucfg, memcfg, runcfg)
 
     def get_current_line(self) -> str:
         current_line = b68k.api.disasm.disassemble(self.cpu.r_pc())
@@ -126,6 +129,8 @@ class m68k:
         return bytearray
 
     def poweroff(self):
-        runtime.shutdown()
-
+        try:
+            self.runtime.shutdown()
+        except RuntimeError:
+            print("Cpu was already shutdown")
 
