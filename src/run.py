@@ -97,7 +97,7 @@ class Runner(QWidget):
         # memory view
         self.memview = QLabel()
         self.memview.setFont(QFont("MonoLisa"))
-        self.memview.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+        self.memview.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.frame.addWidget(self.memview, 0, 0, 1, 1)
 
         # watched vars
@@ -174,6 +174,10 @@ class Runner(QWidget):
 
     def update_ui(self):
         self.update_regs()
+
+    def resizeEvent(self, event):
+        print("Resize event")
+        super().resizeEvent(event)
         self.update_memview()
 
     def update_regs(self):
@@ -190,19 +194,17 @@ class Runner(QWidget):
         pc = self.main_cpu.cpu.r_pc()
         if self.seekline.text() != "":
             pc = int(self.seekline.text(), 16)
-        self.memview.setText("")
         self.memview.clear()
-        self.memview.adjustSize()
-        self.adjustSize()
+        #self.memview.adjustSize()
+        #print("Triggering")
         # text_height = self.memview.sizeHint().height()
         # frame_height = self.frame.contentsRect().height()
         # available_height = frame_height//2
         # lines = available_height//text_height
         # print(self.frame.contentsMargins().top(), self.frame.contentsMargins().bottom())
         # print(self.frame.contentsRect().height(), text_height, available_height, lines)
-
         line_height = QFontMetrics(self.memview.font()).lineSpacing()
-        height = self.size().height()//2
+        height = int(self.memview.size().height() * .75) #self.size().height()//2
         lines = height//line_height
         print(height,lines)
         #print(self.frame.contentsRect().height())
