@@ -82,8 +82,10 @@ class m68k:
         self.poweroff()
         self.runtime = b68k.Runtime(cpucfg, memcfg, runcfg)
 
-    def get_current_line(self) -> str:
-        current_line = b68k.api.disasm.disassemble(self.cpu.r_pc())
+    def get_current_line(self):
+        current_line = b68k.api.disasm.disassemble(self.cpu.r_pc()) # returns InstrLine (disassemble.py)
+        return current_line
+        print(current_line)
         return f"0x{self.cpu.r_pc():08X}: {current_line[2]}"
 
     def step(self):
