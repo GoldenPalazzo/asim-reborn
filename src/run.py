@@ -170,9 +170,10 @@ class Runner(QWidget):
 
     def update_ui(self):
         self.update_regs()
+        self.update_memview()
 
     def resizeEvent(self, event):
-        print("Resize event")
+        #print("Resize event")
         super().resizeEvent(event)
         self.update_memview()
 
