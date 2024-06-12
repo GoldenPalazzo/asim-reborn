@@ -62,6 +62,7 @@ def main():
         }
         QLabel {
             color: #FFFFFF;
+            font-size: 18px;
         }
         QPushButton {
             background-color: #4A4A4A;
