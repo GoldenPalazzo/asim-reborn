@@ -63,9 +63,6 @@ class Runner(QWidget):
         self.pc = QLabel(f"{0:08X}")
         self.sreg.setFont(QFont("MonoLisa"))
         self.pc.setFont(QFont("MonoLisa"))
-        self.current_instruction = QLabel("")
-        self.current_instruction.setFont(QFont("MonoLisa", 18))
-        self.current_instruction.setAlignment(Qt.AlignCenter)
         self.watched_vars: list[Variable]  = []
 
         self.init_ui()
@@ -75,7 +72,6 @@ class Runner(QWidget):
         #self.setWindowTitle('Debugger')
         self.frame = QGridLayout()
         self.frame.setSpacing(10)
-        #frame.addWidget(self.current_instruction, 1, 0, 1, -1)
 
         # registers grid
         reglayout = QGridLayout()
@@ -183,7 +179,6 @@ class Runner(QWidget):
     def update_regs(self):
         regs = self.main_cpu.get_regs()
         pc = self.main_cpu.cpu.r_pc()
-        self.current_instruction.setText(self.main_cpu.get_current_line())
         for i in range(8):
             self.dregs[i].setText(f"0x{regs[f'd{i}']:08X}")
             self.aregs[i].setText(f"0x{regs[f'a{i}']:08X}")
