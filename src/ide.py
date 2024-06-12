@@ -346,7 +346,7 @@ class IDE(QMainWindow):
             #print(f"errors in {errors}")
             self.highlight_errors(errors)
 
-    def parse_lst(self, path: str):
+    def parse_lst(self, path: str, import_vars: bool = True):
         valid_line_re = re.compile(r'^[0-9A-Fa-f]{2}:[0-9A-Fa-f]{8}$')
         valid_symbol_re = re.compile(r'.*\s+A:[0-9A-Fa-f]{8}')
         with open(path, 'r') as file:
@@ -371,7 +371,8 @@ class IDE(QMainWindow):
                     address = int(s[1][2:], 16)
                     row = i
                     #print(f"Address: {address}, line: {row}")
-                    self.runner.add_var(address, s[0])
+                    if import_vars:
+                        self.runner.add_var(address, s[0])
                     continue
                 if len(s) < 3:
                     continue
@@ -393,7 +394,9 @@ class IDE(QMainWindow):
             lst = os.path.splitext(self.current_file)[0] + ext
             if os.path.exists(lst):
                 lst = os.path.splitext(self.current_file)[0] + ext
-                self.parse_lst(lst)
+                import_vars = QMessageBox.question(self, "Import variables",
+                                     "Do you want to import variables from the lst file?")
+                self.parse_lst(lst, import_vars)
                 self.runner_polling.start(100)
                 break
         else:
