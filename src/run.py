@@ -7,8 +7,8 @@ import sys
 from typing import Optional, Union, Callable, List
 import PySide6
 
-from PySide6.QtWidgets import QApplication, QComboBox, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QPushButton, QPlainTextEdit, QFileDialog, QVBoxLayout, QWidget, QScrollArea
-from PySide6.QtGui import QFont, QRegularExpressionValidator, QTextCursor, QAction, QTextOption, QValidator
+from PySide6.QtWidgets import QApplication, QComboBox, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QPushButton, QPlainTextEdit, QFileDialog, QSizePolicy, QVBoxLayout, QWidget, QScrollArea
+from PySide6.QtGui import QFont, QFontMetrics, QRegularExpressionValidator, QTextCursor, QAction, QTextOption, QValidator
 from PySide6.QtCore import QRegularExpression, Qt
 
 import m68k
@@ -71,11 +71,13 @@ class Runner(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        self.setGeometry(100, 100, 800, 600)
+        #self.setGeometry(100, 100, 800, 600)
         #self.setWindowTitle('Debugger')
-        frame = QGridLayout()
-        frame.setSpacing(10)
+        self.frame = QGridLayout()
+        self.frame.setSpacing(10)
         #frame.addWidget(self.current_instruction, 1, 0, 1, -1)
+
+        # registers grid
         reglayout = QGridLayout()
         for i in range(8):
             reglayout.addWidget(QLabel(f"D{i}"), i, 0)
@@ -89,35 +91,29 @@ class Runner(QWidget):
         reglayout.addWidget(self.sreg)
         reglayout.addWidget(QLabel("PC"))
         reglayout.addWidget(self.pc)
-        frame.addLayout(reglayout, 4, 0, 1, -1)
-        # memory view
-        self.memview = QPlainTextEdit()
-        self.memview.setReadOnly(True)
-        self.memview.setFont(QFont("MonoLisa"))
-        self.memview.setLineWrapMode(QPlainTextEdit.NoWrap)
-        self.memview.setWordWrapMode(QTextOption.NoWrap)
-        self.memview.setTabStopDistance(40)
-        self.memview.setTabChangesFocus(True)
-        self.memview.setPlaceholderText("Memory")
-        frame.addWidget(self.memview, 1, 0, 1, 1)
+        self.frame.addLayout(reglayout, 3, 0, 1, -1)
 
-#         self.varwatch = QPlainTextEdit()
-        # self.varwatch.setReadOnly(True)
-        # self.varwatch.setFont(QFont("MonoLisa"))
-        # self.varwatch.setLineWrapMode(QPlainTextEdit.NoWrap)
-        # self.varwatch.setWordWrapMode(QTextOption.NoWrap)
-        # self.varwatch.setTabStopDistance(40)
-        # self.varwatch.setTabChangesFocus(True)
-#         self.varwatch.setPlaceholderText("Watched variables")
+
+        # memory view
+        self.memview = QLabel()
+        self.memview.setFont(QFont("MonoLisa"))
+        self.memview.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+        self.frame.addWidget(self.memview, 0, 0, 1, 1)
+
+        # watched vars
         scrollvars = QScrollArea()
         scrollvars.setWidgetResizable(True)
         dummy_widget = QWidget()
         self.varwatch = QVBoxLayout()
         dummy_widget.setLayout(self.varwatch)
         scrollvars.setWidget(dummy_widget)
-        frame.addWidget(scrollvars, 1, 1, 1, 1)
+        scrollvars.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        dummy_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        scrollvars.setMinimumSize(100, 100)
+        scrollvars.setMaximumHeight(200)
+        self.frame.addWidget(scrollvars, 0, 1, 1, 1)
 
-        seeker = QHBoxLayout()
+        # seek address in memory view
         self.seekline = QLineEdit()
         self.seekline.setFont(QFont("MonoLisa"))
         self.seekline.setMaxLength(8)
@@ -126,12 +122,12 @@ class Runner(QWidget):
         self.seekline.setValidator(seekvalidator)
         self.seekline.setPlaceholderText("Seek address in hex")
         self.seekline.textChanged.connect(self.update_memview)
-        seeker.addWidget(self.seekline)
         self.seek_sp = QPushButton("Seek SP", self)
         self.seek_sp.clicked.connect(lambda: self.seekline.setText(f"{self.main_cpu.cpu.r_ax(7):08X}"))
-        seeker.addWidget(self.seek_sp)
-        frame.addLayout(seeker, 2, 0, 1, 1)
+        self.frame.addWidget(self.seekline, 1, 0, 1, 1)
+        self.frame.addWidget(self.seek_sp, 2, 0, 1, 1)
 
+        # seek variable in variable view
         watchvarbtns = QHBoxLayout()
         self.watchvaraddr = QLineEdit()
         self.watchvaraddr.setFont(QFont("MonoLisa"))
@@ -145,9 +141,10 @@ class Runner(QWidget):
         clr_btn.clicked.connect(self.clr_var)
         watchvarbtns.addWidget(add_btn)
         watchvarbtns.addWidget(clr_btn)
-        frame.addWidget(self.watchvaraddr, 2, 1, 1, 1)
-        frame.addLayout(watchvarbtns, 3, 1, 1, 1)
+        self.frame.addWidget(self.watchvaraddr, 1, 1, 1, 1)
+        self.frame.addLayout(watchvarbtns, 2, 1, 1, 1)
 
+        # step and stop btns
         buttons = QHBoxLayout()
         step_btn = QPushButton('Step', self)
         step_btn.clicked.connect(self.step)
@@ -158,10 +155,18 @@ class Runner(QWidget):
         poweroff_action.setShortcut('F8')
         buttons.addWidget(step_btn)
         buttons.addWidget(self.poweroff_btn)
-        frame.addLayout(buttons, 5, 0, 1, -1)
-        #frame.setRowStretch(1, 1)
+        self.frame.addLayout(buttons, 4, 0, 1, -1)
+
+        self.frame.setRowStretch(0, 2)
+        self.frame.setRowStretch(1, 0)
+        self.frame.setRowStretch(2, 0)
+        self.frame.setRowStretch(3, 0)
+        self.frame.setRowStretch(4, 0)
+
+
+        self.setLayout(self.frame)
+
         self.update_ui()
-        self.setLayout(frame)
 
     def load_file(self, fname: str):
         self.main_cpu.load_file(fname)
@@ -185,25 +190,45 @@ class Runner(QWidget):
         pc = self.main_cpu.cpu.r_pc()
         if self.seekline.text() != "":
             pc = int(self.seekline.text(), 16)
+        self.memview.setText("")
         self.memview.clear()
-        radius = 0x80
-        start = max(pc-radius//2,0)
-        mem = self.main_cpu.get_mem(start, radius)
+        self.memview.adjustSize()
+        self.adjustSize()
+        # text_height = self.memview.sizeHint().height()
+        # frame_height = self.frame.contentsRect().height()
+        # available_height = frame_height//2
+        # lines = available_height//text_height
+        # print(self.frame.contentsMargins().top(), self.frame.contentsMargins().bottom())
+        # print(self.frame.contentsRect().height(), text_height, available_height, lines)
+
+        line_height = QFontMetrics(self.memview.font()).lineSpacing()
+        height = self.size().height()//2
+        lines = height//line_height
+        print(height,lines)
+        #print(self.frame.contentsRect().height())
+        #print(line_height, label_height, lines)
+        diameter = lines*4
+        start = max(pc-diameter//2,0)
+        mem = self.main_cpu.get_mem(start, diameter)
         step = 4
         for i in range(0, len(mem), step):
             current_addr = i+start
             current_mem = mem[i:i+step].hex()
-            self.memview.moveCursor(QTextCursor.End)
             #self.memview.insertPlainText(f"0x{i+start:08X} {mem[i:i+step].hex()}\n")
-            self.memview.insertPlainText(f"0x{current_addr:08X} "
-                                         f"{' '.join(current_mem[j:j+2] \
-                                            for j in range(0, len(current_mem), 2))}")
+            self.memview.setText("<br>".join([
+                                            self.memview.text(),
+                                            f"0x{current_addr:08X} "
+                                            f"{' '.join(current_mem[j:j+2] \
+                                            for j in range(0, len(current_mem), 2))}",
+                                              ]))
             stack_pointer = self.main_cpu.cpu.r_ax(7)
             if current_addr <= stack_pointer and current_addr+step > stack_pointer:
-                self.memview.insertPlainText(" <-- stack pointer")
-            self.memview.insertPlainText("\n")
-        self.memview.moveCursor(QTextCursor.Start)
-
+                self.memview.setText("<br>".join([
+                                            self.memview.text(),
+                                            f"0x{current_addr:08X} "
+                                            f"{' '.join(current_mem[j:j+2] \
+                                            for j in range(0, len(current_mem), 2))}"
+                                              ]))
         for var in self.watched_vars:
             self.update_var(var)
 
