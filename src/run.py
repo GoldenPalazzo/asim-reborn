@@ -186,6 +186,22 @@ class Runner(QWidget):
         self.sreg.setText(f"{self.main_cpu.format_sreg(self.main_cpu.cpu.r_sr())}")
         self.pc.setText(f"0x{pc:08X}")
 
+
+    def get_memory_string(self, curr_addr: int, curr_mem: str,
+                          sp: int, fp: int, pc: int, i_len: int) -> str:
+        # print(curr_addr, curr_mem, sp, fp)
+        mem_str = f"0x{curr_addr:08X} "
+        for i in range(0, len(curr_mem), 2):
+            if i//2 == sp-curr_addr:
+                mem_str += f'<b style="background-color: #7000ff00">{curr_mem[i:i+2]}</b> '
+            elif i//2 == fp-curr_addr:
+                mem_str += f'<b style="background-color: #70ff0000">{curr_mem[i:i+2]}</b> '
+            elif pc <= i//2+curr_addr <= pc+i_len:
+                mem_str += f'<b style="background-color: #70fffd8d">{curr_mem[i:i+2]}</b> '
+            else:
+                mem_str += curr_mem[i:i+2] + " "
+        return mem_str.strip()
+
     def update_memview(self):
         pc = self.main_cpu.cpu.r_pc()
         if self.seekline.text() != "":
@@ -202,31 +218,33 @@ class Runner(QWidget):
         line_height = QFontMetrics(self.memview.font()).lineSpacing()
         height = int(self.memview.size().height() * .75) #self.size().height()//2
         lines = height//line_height
-        print(height,lines)
+        lines -= lines%2
+        #print(height,lines)
         #print(self.frame.contentsRect().height())
         #print(line_height, label_height, lines)
         diameter = lines*4
         start = max(pc-diameter//2,0)
         mem = self.main_cpu.get_mem(start, diameter)
+        # print(mem.hex())
+        curr_instr = self.main_cpu.get_current_line()
+        instr_len = len(curr_instr[1]) * 2
+        current_pc = self.main_cpu.cpu.r_pc()
+        print(curr_instr)
+        print(f"{curr_instr[0]:08X}: {[hex(i) for i in curr_instr[1]]}")
+
         step = 4
         for i in range(0, len(mem), step):
             current_addr = i+start
             current_mem = mem[i:i+step].hex()
+            stack_pointer = self.main_cpu.cpu.r_ax(7)
+            frame_pointer = self.main_cpu.cpu.r_ax(6)
             #self.memview.insertPlainText(f"0x{i+start:08X} {mem[i:i+step].hex()}\n")
             self.memview.setText("<br>".join([
-                                            self.memview.text(),
-                                            f"0x{current_addr:08X} "
-                                            f"{' '.join(current_mem[j:j+2] \
-                                            for j in range(0, len(current_mem), 2))}",
-                                              ]))
-            stack_pointer = self.main_cpu.cpu.r_ax(7)
-            if current_addr <= stack_pointer and current_addr+step > stack_pointer:
-                self.memview.setText("<br>".join([
-                                            self.memview.text(),
-                                            f"0x{current_addr:08X} "
-                                            f"{' '.join(current_mem[j:j+2] \
-                                            for j in range(0, len(current_mem), 2))}"
-                                              ]))
+                self.memview.text(),
+                self.get_memory_string(current_addr,
+                    current_mem, stack_pointer,
+                    frame_pointer, current_pc, instr_len)
+            ]))
         for var in self.watched_vars:
             self.update_var(var)
 
@@ -305,7 +323,6 @@ class Runner(QWidget):
 
     def poweroff(self):
         self.main_cpu.poweroff()
-        self.current_instruction.setText("Stopped execution")
 
 
 if __name__ == '__main__':
