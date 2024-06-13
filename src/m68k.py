@@ -10,7 +10,9 @@ from bare68k.consts import M68K_CPU_TYPE_68000, MEM_FC_SUPER_MASK
 
 cpucfg = b68k.CPUConfig(M68K_CPU_TYPE_68000)
 memcfg = b68k.MemoryConfig()
-memcfg.add_ram_range(0, 2)
+# Every page is 64k
+# So, from page 0 to 6 (0x0000 to 0x3FFFF) is RAM
+memcfg.add_ram_range(0, 6)
 runcfg = b68k.RunConfig()
 
 base = 0x8000
@@ -129,6 +131,14 @@ class m68k:
         for i in range(bytelen):
             bytearray += self.mem.r8(start+i).to_bytes(1, "big")
         return bytearray
+
+    def set_mem(self, start, data: bytes):
+        for i in range(len(data)):
+            self.mem.w8(start+i, data[i])
+
+    def set_irq(self, irq: int):
+        print(f"Setting IRQ {irq}")
+        self.cpu.set_irq(irq)
 
     def poweroff(self):
         try:
