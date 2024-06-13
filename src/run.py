@@ -229,8 +229,8 @@ class Runner(QWidget):
         curr_instr = self.main_cpu.get_current_line()
         instr_len = len(curr_instr[1]) * 2
         current_pc = self.main_cpu.cpu.r_pc()
-        print(curr_instr)
-        print(f"{curr_instr[0]:08X}: {[hex(i) for i in curr_instr[1]]}")
+        # print(curr_instr)
+        # print(f"{curr_instr[0]:08X}: {[hex(i) for i in curr_instr[1]]}")
 
         step = 4
         for i in range(0, len(mem), step):
@@ -297,7 +297,7 @@ class Runner(QWidget):
             addr = int(self.watchvaraddr.text(), 16)
         if name == "":
             name = f"userdef_{len(self.watched_vars)}"
-        print(f"Adding var {addr:08X}")
+        # print(f"Adding var {addr:08X}")
         var = Variable(addr, name)
         self.watched_vars.append(var)
         var.mode_select.currentIndexChanged.connect(lambda: self.update_var(var))
