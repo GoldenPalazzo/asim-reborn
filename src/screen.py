@@ -118,8 +118,8 @@ class Screen(QWidget):
                 self.timer.timeout.connect(self.update_image)
             self.timer.start(1/self.refr_rate*1000)
         else:
-            self.fill_screen(qRgb(0, 0, 0))
             self.timer.stop()
+            self.fill_screen(qRgb(0, 0, 0))
 
     def resizeEvent(self, event: QResizeEvent):
         #print(event.size())
