@@ -3,7 +3,7 @@
 # ASIM Reborn - Simple multiplatform 68k IDE
 # Copyright (C) 2024 Francesco Palazzo
 
-import sys
+import sys, threading, time
 from typing import Optional, Union, Callable, List
 import PySide6
 
@@ -143,7 +143,7 @@ class Runner(QWidget):
         # step and stop btns
         buttons = QHBoxLayout()
         run_btn = QPushButton('Run', self)
-        run_btn.clicked.connect(self.main_cpu.run)
+        run_btn.clicked.connect(self.run)
         step_btn = QPushButton('Step', self)
         step_btn.clicked.connect(self.step)
         self.poweroff_btn = QPushButton('Stop', self)
@@ -321,9 +321,25 @@ class Runner(QWidget):
         self.main_cpu.step()
         self.update_ui()
 
+    def step_thread(self):
+        self.thread_active = True
+        while self.thread_active == True and self.main_cpu.step():
+            #print("lessgo")
+            pass
+            #time.sleep(10**-12)
+
     def run(self):
-        self.main_cpu.run()
-        self.update_ui()
+        self.thread_active = False
+        try:
+            self.t.join()
+        except AttributeError:
+            pass
+        self.t = threading.Thread(target=self.step_thread)
+        self.t.start()
+
+    def debug_registers(self):
+        while True:
+            print(self.main_cpu.get_regs())
 
     def poweroff(self):
         self.main_cpu.poweroff()

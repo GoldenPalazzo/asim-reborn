@@ -3,6 +3,7 @@
 # ASIM Reborn - Simple multiplatform 68k IDE
 # Copyright (C) 2024 Francesco Palazzo
 
+import threading
 from typing import Any, Optional, Dict, Tuple, Union # "tuple" works from 3.9 onwards
 
 import bare68k as b68k
@@ -46,6 +47,7 @@ class m68k:
         self.mem = self.runtime.get_mem()
         self.cpu = self.runtime.get_cpu()
         self.new_base = base
+        self.run_thread: Optional[Thread] = None
 
     def load_file(self, fname: str):
         self.reset()
@@ -77,7 +79,7 @@ class m68k:
                 #c+=1
                 #byte = f.read(1)
 
-        #print(f"Starting at {self.new_base:02X} (stack {stack:02X})\n")
+        print(f"Starting at {self.new_base:02X} (stack {stack:02X})\n")
         self.runtime.reset(self.new_base, stack)
 
     def reset(self):
@@ -91,10 +93,20 @@ class m68k:
         return f"0x{self.cpu.r_pc():08X}: {current_line[2]}"
 
     def step(self):
-        self.cpu.execute(1)
+        if self.get_power_status():
+            self.cpu.execute(1)
+            return True
+        return False
 
-    def run(self):
-        self.runtime.run()
+    def get_power_status(self):
+        return b68k.machine.is_initialized()
+
+    # I DON'T KNOW WHY THIS DOESN'T WORK
+    # GUESS I'LL STICK TO USING STEP
+    # def run(self):
+        # self.run_thread = threading.Thread(target=self.runtime.run)
+        # self.run_thread.daemon = True
+        # self.run_thread.start()
 
     def format_sreg(self, sr: int) -> str:
         mask = 0x8000
@@ -126,6 +138,7 @@ class m68k:
             "a5": self.cpu.r_ax(5),
             "a6": self.cpu.r_ax(6),
             "a7": self.cpu.r_ax(7),
+            "pc": self.cpu.r_pc(),
             "sr": self.cpu.r_sr()
         }
 
@@ -146,6 +159,8 @@ class m68k:
     def poweroff(self):
         try:
             self.runtime.shutdown()
+            if self.run_thread:
+                self.run_thread.join()
         except RuntimeError:
             print("Cpu was already shutdown")
 

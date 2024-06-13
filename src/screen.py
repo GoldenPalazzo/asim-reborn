@@ -42,7 +42,6 @@ class Screen(QWidget):
         self.canvas = QLabel(self)
         self.canvas.setAlignment(Qt.AlignCenter)
         self.canvas.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-        print(self.canvas.width(), self.canvas.height())
         self.setWindowTitle("Screen")
         self.power = False
         self.power_btn = QPushButton(f"Power {'off' if self.power else 'on'}")
@@ -79,12 +78,16 @@ class Screen(QWidget):
 
     def update_image(self):
         """Reads from self.addr WxH argb bytes and updates the image"""
-        fill_flag = self.get_sr()["fill"]
-        if fill_flag:
-            color = self.get_color(self.cpu.get_mem(self.addr, 1)[0])
-            self.fill_screen(color)
+        if not self.cpu.get_power_status():
+            self.fill_screen(qRgb(255,255,255))
+            return
         else:
-            self.read_framebuffer()
+            fill_flag = self.get_sr()["fill"]
+            if fill_flag:
+                color = self.get_color(self.cpu.get_mem(self.addr, 1)[0])
+                self.fill_screen(color)
+            else:
+                self.read_framebuffer()
         self.update_image_scaled()
 
     def update_image_scaled(self):

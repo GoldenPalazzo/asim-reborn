@@ -177,6 +177,7 @@ class IDE(QMainWindow):
         self.init_ui()
         self.highlighter = M68KHighlighter(self.text_edit.document(), self.ui_palette)
         self.runner_polling = QTimer()
+        self.runner_polling.timeout.connect(self.runner.update_ui)
         self.runner_polling.timeout.connect(self.update_highlighted_running_line)
 
         if file:
@@ -237,9 +238,8 @@ class IDE(QMainWindow):
         # Screen dock
         self.screen_dock = QDockWidget("Screen", self)
         self.screen_dock.setAllowedAreas(Qt.AllDockWidgetAreas)
-        self.screen_dock.setWidget(screen.Screen(self.runner.main_cpu))
+        self.screen_dock.setWidget(screen.Screen(self.runner.main_cpu, refr_rate=24))
         self.addDockWidget(Qt.RightDockWidgetArea, self.screen_dock)
-        self.screen_dock.hide()
 
         self.runner.poweroff_btn.clicked.connect(self.stop_highlighting)
 
@@ -286,7 +286,7 @@ class IDE(QMainWindow):
         run_action.triggered.connect(self.runner.run)
         run_action.setShortcut(QKeySequence("F8"))
         stop_action = QAction('Stop', self)
-        stop_action.triggered.connect(self.stop_highlighting)
+        stop_action.triggered.connect(self.stop)
         stop_action.setShortcut(QKeySequence("F9"))
         run_menu = self.menuBar().addMenu('Run')
         run_menu.addAction(compile_action)
@@ -418,7 +418,7 @@ class IDE(QMainWindow):
                 import_vars = QMessageBox.question(self, "Import variables",
                                      "Do you want to import variables from the lst file?")
                 self.parse_lst(lst, import_vars)
-                self.runner_polling.start(100)
+                self.runner_polling.start(500)
                 break
         else:
             QMessageBox.warning(self, "Error", "No lst file to run. Line highlighting disabled.")
@@ -472,6 +472,10 @@ class IDE(QMainWindow):
             selection.format = fmt
             selections.append(selection)
         self.text_edit.setExtraSelections(selections)
+
+    def stop(self):
+        self.stop_highlighting()
+        self.runner.poweroff()
 
     def stop_highlighting(self):
         self.runner_polling.stop()
