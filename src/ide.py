@@ -76,7 +76,7 @@ class M68KHighlighter(QSyntaxHighlighter):
 class CustomTextEdit(QPlainTextEdit):
     def __init__(self, palette: palettes.Palette = palettes.monokai):
         super().__init__()
-        self.palette = palette
+        self.ui_palette = palette
         self.tab_size = 4
         self.setCursorWidth(3)
         self.lineNumberArea = LineNumber(self)
@@ -130,7 +130,7 @@ class CustomTextEdit(QPlainTextEdit):
         while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():
                 number = str(block_number + 1)
-                painter.setPen(QColor(self.palette.text))
+                painter.setPen(QColor(self.ui_palette.text))
                 painter.drawText(0, int(top), self.lineNumberArea.width(), self.fontMetrics().height(),
                                  Qt.AlignCenter, number)
             block = block.next()
@@ -143,7 +143,7 @@ class CustomTextEdit(QPlainTextEdit):
 
         if not self.isReadOnly():
             selection = QTextEdit.ExtraSelection()
-            selection.format.setBackground(QColor(self.palette.highlight))
+            selection.format.setBackground(QColor(self.ui_palette.highlight))
             selection.format.setProperty(QTextFormat.FullWidthSelection, True)
             selection.cursor = self.textCursor()
             selection.cursor.clearSelection()
@@ -172,10 +172,10 @@ class IDE(QMainWindow):
         editor_config = config.get("editor", {})
         self.font = editor_config.get("font-family", self.setup_monolisa())
         self.font_size = int(editor_config.get("font-size", 16))
-        self.palette = palettes.dict_to_palette(editor_config.get("palette", {}),
+        self.ui_palette = palettes.dict_to_palette(editor_config.get("palette", {}),
                                                 palettes.monokai)
         self.init_ui()
-        self.highlighter = M68KHighlighter(self.text_edit.document(), self.palette)
+        self.highlighter = M68KHighlighter(self.text_edit.document(), self.ui_palette)
         self.runner_polling = QTimer()
         self.runner_polling.timeout.connect(self.update_highlighted_running_line)
 
@@ -190,7 +190,7 @@ class IDE(QMainWindow):
         return "MonoLisa"
 
     def init_ui(self):
-        self.text_edit = CustomTextEdit(self.palette)
+        self.text_edit = CustomTextEdit(self.ui_palette)
         self.text_edit.tab_size = 8
         self.text_edit.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.setCentralWidget(self.text_edit)
@@ -201,8 +201,8 @@ class IDE(QMainWindow):
         self.text_edit.setStyleSheet("QPlainTextEdit { "
                                      f"font-family: '{self.font}'; "
                                      f"font-size: {self.font_size}pt; "
-                                     f"background-color: {self.palette.background}; "
-                                     f"color: {self.palette.text}; "
+                                     f"background-color: {self.ui_palette.background}; "
+                                     f"color: {self.ui_palette.text}; "
                            " }")
 
         # Compilation dock
