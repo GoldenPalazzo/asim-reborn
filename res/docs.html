@@ -74,6 +74,70 @@
             <li>Do not set both trace bits at the same time.</li>
         </ul>
     </ul>
+
+    <h2>Vector Table</h2>
+    <table>
+        <tr>
+            <th>Vector</th>
+            <th>Vector offset</th>
+            <th>Supervisor Space</th>
+            <th>Assignment</th>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>0x000</td>
+            <td>Program</td>
+            <td>Reset Interrupt Stack Pointer</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>0x004</td>
+            <td>Program</td>
+            <td>Reset Program Counter</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>0x008</td>
+            <td>Data</td>
+            <td>Bus Error</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>0x00C</td>
+            <td>Data</td>
+            <td>Address Error</td>
+        </tr>
+        <tr>
+            <td>...</td>
+            <td>...</td>
+            <td>...</td>
+            <td>...</td>
+        </tr>
+        <tr>
+            <td>25</td>
+            <td>0x064</td>
+            <td>Data</td>
+            <td>Interrupt Autovector Level 1</td>
+        </tr>
+        <tr>
+            <td>26</td>
+            <td>0x068</td>
+            <td>Data</td>
+            <td>Interrupt Autovector Level 2</td>
+        </tr>
+        <tr>
+            <td>...</td>
+            <td>...</td>
+            <td>...</td>
+            <td>...</td>
+        </tr>
+        <tr>
+            <td>31</td>
+            <td>0x07C</td>
+            <td>Data</td>
+            <td>Interrupt Autovector Level 7</td>
+        </tr>
+    </table>
 </body>
 </html>
 
