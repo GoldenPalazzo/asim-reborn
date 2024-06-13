@@ -142,14 +142,14 @@ class Runner(QWidget):
 
         # step and stop btns
         buttons = QHBoxLayout()
+        run_btn = QPushButton('Run', self)
+        run_btn.clicked.connect(self.main_cpu.run)
         step_btn = QPushButton('Step', self)
         step_btn.clicked.connect(self.step)
         self.poweroff_btn = QPushButton('Stop', self)
         self.poweroff_btn.clicked.connect(self.poweroff)
-        poweroff_action = QAction('Stop', self)
-        poweroff_action.triggered.connect(self.poweroff)
-        poweroff_action.setShortcut('F8')
         buttons.addWidget(step_btn)
+        buttons.addWidget(run_btn)
         buttons.addWidget(self.poweroff_btn)
         self.frame.addLayout(buttons, 4, 0, 1, -1)
 
@@ -319,6 +319,10 @@ class Runner(QWidget):
 
     def step(self):
         self.main_cpu.step()
+        self.update_ui()
+
+    def run(self):
+        self.main_cpu.run()
         self.update_ui()
 
     def poweroff(self):

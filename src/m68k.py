@@ -93,6 +93,9 @@ class m68k:
     def step(self):
         self.cpu.execute(1)
 
+    def run(self):
+        self.runtime.run()
+
     def format_sreg(self, sr: int) -> str:
         mask = 0x8000
         prot = "T?S??210???XNZVC"

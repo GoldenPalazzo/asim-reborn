@@ -276,19 +276,23 @@ class IDE(QMainWindow):
         compile_action = QAction('Compile program', self)
         compile_action.setShortcut(QKeySequence("F5"))
         compile_action.triggered.connect(self.compile_file)
-        run_action = QAction('Run program', self)
-        run_action.triggered.connect(self.run_file)
-        run_action.setShortcut(QKeySequence("F6"))
+        execute_action = QAction('Execute program', self)
+        execute_action.triggered.connect(self.execute_file)
+        execute_action.setShortcut(QKeySequence("F6"))
         step_action = QAction('Step', self)
         step_action.triggered.connect(self.runner.step)
         step_action.setShortcut(QKeySequence("F7"))
+        run_action = QAction('Run', self)
+        run_action.triggered.connect(self.runner.run)
+        run_action.setShortcut(QKeySequence("F8"))
         stop_action = QAction('Stop', self)
         stop_action.triggered.connect(self.stop_highlighting)
-        stop_action.setShortcut(QKeySequence("F8"))
+        stop_action.setShortcut(QKeySequence("F9"))
         run_menu = self.menuBar().addMenu('Run')
         run_menu.addAction(compile_action)
-        run_menu.addAction(run_action)
+        run_menu.addAction(execute_action)
         run_menu.addAction(step_action)
+        run_menu.addAction(run_action)
         run_menu.addAction(stop_action)
         # Window menu
         window_menu = self.menuBar().addMenu('Window')
@@ -401,7 +405,7 @@ class IDE(QMainWindow):
                 #print(f"Address: {address}, line: {row}")
                 self.current_lst[address] = row
 
-    def run_file(self):
+    def execute_file(self):
         #check is .lst file exists
         if self.current_file == None:
             QMessageBox.warning(self, "Error", "No file to run.")
