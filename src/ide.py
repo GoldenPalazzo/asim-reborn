@@ -4,7 +4,7 @@
 # Copyright (C) 2024 Francesco Palazzo
 
 from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, QMessageBox, QTextEdit, QPlainTextEdit, QFileDialog, QTabWidget, QWidget
-from PySide6.QtGui import QFont, QFontDatabase, QPainter, QSyntaxHighlighter, QTextFormat, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor, QTextDocument, QIcon
+from PySide6.QtGui import QFont, QFontDatabase, QPainter, QSyntaxHighlighter, QTextFormat, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor, QTextDocument, QIcon, QDrag
 from PySide6.QtCore import QFileInfo, QTimer, Qt, QEvent, QSize, QRect
 
 import os
@@ -13,7 +13,7 @@ from typing import Optional, Union, Callable
 import re
 import sys
 
-import compiler, run, opcodes, palettes, path_resolver, help
+import compiler, run, opcodes, palettes, path_resolver, help, screen
 
 class LineNumber(QWidget):
     def __init__(self, editor):
@@ -217,15 +217,34 @@ class IDE(QMainWindow):
         self.dock.hide()
 
         #Execution dock
-        self.side_dock = QDockWidget("Execution", self)
-        self.side_dock.setAllowedAreas(Qt.AllDockWidgetAreas)
-        sidetabs = QTabWidget()
-        sidetabs.addTab(self.runner, "Runner")
-        sidetabs.addTab(self.documentation, "Documentation")
-        self.side_dock.setWidget(sidetabs)
+        self.exec_dock = QDockWidget("Execution", self)
+        self.exec_dock.setAllowedAreas(Qt.AllDockWidgetAreas)
+        # sidetabs.addTab(self.runner, "Runner")
+        # sidetabs.addTab(self.documentation, "Documentation")
+        # sidetabs.addTab(screen.Screen(self.runner.main_cpu), "Screen")
+        # sidetabs.tabBarDoubleClicked.connect(self.detach_tab)
+        # self.side_dock.setWidget(sidetabs)
+        self.exec_dock.setWidget(self.runner)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.exec_dock)
+
+        # Docs dock
+        self.docs_dock = QDockWidget("Documentation", self)
+        self.docs_dock.setAllowedAreas(Qt.AllDockWidgetAreas)
+        self.docs_dock.setWidget(self.documentation)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.docs_dock)
+        self.docs_dock.hide()
+
+        # Screen dock
+        self.screen_dock = QDockWidget("Screen", self)
+        self.screen_dock.setAllowedAreas(Qt.AllDockWidgetAreas)
+        self.screen_dock.setWidget(screen.Screen(self.runner.main_cpu))
+        self.addDockWidget(Qt.RightDockWidgetArea, self.screen_dock)
+        self.screen_dock.hide()
+
         self.runner.poweroff_btn.clicked.connect(self.stop_highlighting)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.side_dock)
-        self.side_dock.hide()
+
+        self.tabifyDockWidget(self.exec_dock, self.docs_dock)
+        self.tabifyDockWidget(self.exec_dock, self.screen_dock)
 
         self.initMenuBar()
         self.show()
@@ -274,16 +293,14 @@ class IDE(QMainWindow):
         # Window menu
         window_menu = self.menuBar().addMenu('Window')
         window_menu.addAction(self.dock.toggleViewAction())
-        window_menu.addAction(self.side_dock.toggleViewAction())
+        window_menu.addAction(self.exec_dock.toggleViewAction())
+        window_menu.addAction(self.docs_dock.toggleViewAction())
+        window_menu.addAction(self.screen_dock.toggleViewAction())
         # Help menu
-        doc_action = QAction('Documentation', self)
-        doc_action.triggered.connect(self.open_docs)
         about_action = QAction('About', self)
         about_action.triggered.connect(self.show_about)
         help_menu = self.menuBar().addMenu('Help')
-        help_menu.addAction(doc_action)
         help_menu.addAction(about_action)
-
 
     def on_text_changed(self):
         self.update_window_title(True)
@@ -407,8 +424,7 @@ class IDE(QMainWindow):
             bin = os.path.splitext(self.current_file)[0] + ext
             if os.path.exists(bin):
                 self.runner.load_file(bin)
-                self.side_dock.show()
-                self.side_dock.widget().setCurrentIndex(0)
+                self.exec_dock.show()
                 break
         else:
             QMessageBox.warning(self, "Error", "No binary file to run.")
@@ -456,10 +472,6 @@ class IDE(QMainWindow):
     def stop_highlighting(self):
         self.runner_polling.stop()
         self.text_edit.setExtraSelections([])
-
-    def open_docs(self):
-        self.side_dock.show()
-        self.side_dock.widget().setCurrentIndex(1)
 
     def show_about(self):
         self.about.show()
