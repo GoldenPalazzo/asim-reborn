@@ -54,7 +54,7 @@ class Screen(QWidget):
         frame.addWidget(self.power_btn)
         self.setLayout(frame)
 
-        self.fill_screen(qRgb(30, 0, 0))
+        self.fill_screen(qRgb(0, 0, 0))
         self.update_image_scaled()
         self.show()
 
@@ -80,7 +80,8 @@ class Screen(QWidget):
         """Reads from self.addr WxH argb bytes and updates the image"""
         if not self.cpu.get_power_status():
             self.fill_screen(qRgb(255,255,255))
-            return
+            self.power_label.setHidden(False)
+            self.power_label.setText("CPU and mem are off")
         else:
             fill_flag = self.get_sr()["fill"]
             if fill_flag:
@@ -111,8 +112,9 @@ class Screen(QWidget):
     def toggle_power(self):
         """Toggles the power of the screen"""
         self.power = not self.power
-        self.power_btn.setText(f"Power {'on' if self.power else 'off'}")
-        self.power_label.setHidden(self.power)
+        self.power_btn.setText(f"{'Shutdown' if self.power else 'Power on'}")
+        self.power_label.setText("Screen is turned off")
+        self.power_label.setHidden(self.power or self.cpu.get_power_status())
         if self.power:
             self.timer = QTimer(self)
             if self.frameswap:
