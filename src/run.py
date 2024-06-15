@@ -9,7 +9,7 @@ import PySide6
 
 from PySide6.QtWidgets import QApplication, QComboBox, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QPushButton, QPlainTextEdit, QFileDialog, QSizePolicy, QVBoxLayout, QWidget, QScrollArea
 from PySide6.QtGui import QFont, QFontMetrics, QRegularExpressionValidator, QTextCursor, QAction, QTextOption, QValidator
-from PySide6.QtCore import QRegularExpression, Qt
+from PySide6.QtCore import QRegularExpression, QRunnable, QThread, QThreadPool, Qt, QObject
 
 import m68k
 
@@ -25,6 +25,20 @@ admitted_modes = [
             "Hex long",
             "ASCII char",
             "Null termined string"]
+
+class EmulatorThread(QRunnable):
+    def __init__(self, cpu: m68k.m68k):
+        super().__init__()
+        self.cpu = cpu
+        self._abort = False
+
+    def run(self):
+        while not self._abort:
+            t = time.time()
+            if not self.cpu.step():
+                break
+            time.sleep(16*10**-50)
+            #print(f"Step time: {time.time()-t}")
 
 class Variable(QWidget):
     def __init__(self, addr: int, name: str = ""):
@@ -321,27 +335,25 @@ class Runner(QWidget):
         self.main_cpu.step()
         self.update_ui()
 
-    def step_thread(self):
-        self.thread_active = True
-        while self.thread_active == True and self.main_cpu.step():
-            #print("lessgo")
-            pass
-            #time.sleep(10**-12)
-
     def run(self):
         self.thread_active = False
         try:
             self.t.join()
         except AttributeError:
             pass
-        self.t = threading.Thread(target=self.step_thread)
-        self.t.start()
+        self.t = EmulatorThread(self.main_cpu)
+        print("Starting thread")
+        QThreadPool.globalInstance().start(self.t)
 
     def debug_registers(self):
         while True:
             print(self.main_cpu.get_regs())
 
     def poweroff(self):
+        try:
+            self.t._abort = True
+        except AttributeError:
+            pass
         self.main_cpu.poweroff()
 
 
