@@ -283,7 +283,7 @@ class IDE(QMainWindow):
         step_action.triggered.connect(self.runner.step)
         step_action.setShortcut(QKeySequence("F7"))
         run_action = QAction('Run', self)
-        run_action.triggered.connect(self.runner.run)
+        run_action.triggered.connect(self.run)
         run_action.setShortcut(QKeySequence("F8"))
         stop_action = QAction('Stop', self)
         stop_action.triggered.connect(self.stop)
@@ -472,6 +472,10 @@ class IDE(QMainWindow):
             selection.format = fmt
             selections.append(selection)
         self.text_edit.setExtraSelections(selections)
+
+    def run(self):
+        self.stop_highlighting()
+        self.runner.run()
 
     def stop(self):
         self.stop_highlighting()
