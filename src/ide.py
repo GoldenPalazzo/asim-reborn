@@ -416,14 +416,15 @@ class IDE(QMainWindow):
             if os.path.exists(lst):
                 lst = os.path.splitext(self.current_file)[0] + ext
                 import_vars = QMessageBox.question(self, "Import variables",
-                                     "Do you want to import variables from the lst file?")
+                                     "Do you want to import variables from the lst file?") \
+                                == QMessageBox.Yes
+                print(import_vars)
                 self.parse_lst(lst, import_vars)
                 self.runner_polling.start(500)
                 break
         else:
             QMessageBox.warning(self, "Error", "No lst file to run. Line highlighting disabled.")
             self.runner_polling.stop()
-        binary = os.path.splitext(self.current_file)[0] + ".h68"
         for ext in (".h68", ".H68"):
             bin = os.path.splitext(self.current_file)[0] + ext
             if os.path.exists(bin):
