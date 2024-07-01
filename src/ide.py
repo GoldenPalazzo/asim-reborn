@@ -485,6 +485,11 @@ class IDE(QMainWindow):
     def show_about(self):
         self.about.show()
 
+    def show_update_message(self, version: str):
+        QMessageBox.information(self, "Update available",
+                                f"New version {version} is available."
+                                "<a href=\"https://github.com/GoldenPalazzo/asim-reborn/releases\">")
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ide = IDE()

@@ -5,6 +5,8 @@ on:
       - 'main'
     paths-ignore:
       - '**/README.md'
+    paths:
+      - 'src/version.py'
 jobs:
   Build-Exe:
     strategy:
@@ -31,13 +33,13 @@ jobs:
             build: './src/build.sh'
             dist: 'dist/AsimReborn'
             art:    'asimreborn-osx_intel'
-          - os: 'macos-14'
-            prep: './src/prepare_repo.sh'
-            build_vasm: './src/build_vasm.sh'
-            build_b68k: './src/build_bare68k.sh'
-            build: './src/build.sh'
-            dist: 'dist/AsimReborn'
-            art:    'asimreborn-osx_arm'
+          #- os: 'macos-14'
+            #prep: './src/prepare_repo.sh'
+            #build_vasm: './src/build_vasm.sh'
+            #build_b68k: './src/build_bare68k.sh'
+            #build: './src/build.sh'
+            #dist: 'dist/AsimReborn'
+            #art:    'asimreborn-osx_arm'
 
     runs-on: ${{ matrix.os }}
     steps:
