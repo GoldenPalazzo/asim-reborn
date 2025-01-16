@@ -3,10 +3,9 @@ on:
   push:
     branches:
       - 'main'
-    paths-ignore:
-      - '**/README.md'
     paths:
       - 'src/version.py'
+      - '.github/workflows/build_test.yml'
 jobs:
   Build-Exe:
     strategy:
@@ -67,7 +66,7 @@ jobs:
       - name: Build bare68k (*NIX)
         if: runner.os != 'Windows'
         run: ${{ matrix.build_b68k }}
-      - name: Install pip dependencies (UNIX)
+      - name: Install pip dependencies (*NIX)
         if: runner.os != 'Windows'
         run: |
           python -m pip install pip pyinstaller
