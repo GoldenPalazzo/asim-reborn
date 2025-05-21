@@ -236,15 +236,15 @@ class IDE(QMainWindow):
         self.docs_dock.hide()
 
         # Screen dock
-        self.screen_dock = QDockWidget("Screen", self)
-        self.screen_dock.setAllowedAreas(Qt.AllDockWidgetAreas)
-        self.screen_dock.setWidget(screen.Screen(self.runner.main_cpu, refr_rate=24))
-        self.addDockWidget(Qt.RightDockWidgetArea, self.screen_dock)
+        # self.screen_dock = QDockWidget("Screen", self)
+        # self.screen_dock.setAllowedAreas(Qt.AllDockWidgetAreas)
+        # self.screen_dock.setWidget(screen.Screen(self.runner.main_cpu, refr_rate=24))
+        # self.addDockWidget(Qt.RightDockWidgetArea, self.screen_dock)
 
         self.runner.poweroff_btn.clicked.connect(self.stop_highlighting)
 
         self.tabifyDockWidget(self.exec_dock, self.docs_dock)
-        self.tabifyDockWidget(self.exec_dock, self.screen_dock)
+        # self.tabifyDockWidget(self.exec_dock, self.screen_dock)
 
         self.initMenuBar()
         self.show()
@@ -299,7 +299,7 @@ class IDE(QMainWindow):
         window_menu.addAction(self.dock.toggleViewAction())
         window_menu.addAction(self.exec_dock.toggleViewAction())
         window_menu.addAction(self.docs_dock.toggleViewAction())
-        window_menu.addAction(self.screen_dock.toggleViewAction())
+        # window_menu.addAction(self.screen_dock.toggleViewAction())
         # Help menu
         about_action = QAction('About', self)
         about_action.triggered.connect(self.show_about)
