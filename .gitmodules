@@ -1,0 +1,3 @@
+[submodule "bare68k"]
+	path = bare68k
+	url = https://github.com/GoldenPalazzo/bare68k

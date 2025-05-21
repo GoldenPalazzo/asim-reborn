@@ -71,7 +71,7 @@ jobs:
         run: |
           python -m pip install pip pyinstaller
           pip install -r requirements.txt
-          pip install lib/bare68k*.whl
+          pip install bare68k/dist/bare68k-0.1.2*.whl
       - name: Install pip dependencies (Windows)
         if: runner.os == 'Windows'
         run: |

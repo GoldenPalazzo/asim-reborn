@@ -1,16 +1,22 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-prj_dir=$(dirname $(dirname $(readlink -f "$0")))
-bin_dir=$prj_dir/bin
-res_dir=$prj_dir/res
-lib_dir=$prj_dir/lib
-cd $lib_dir/bare68k
-pip3 install -r requirements-dev.txt
-pip3 install setuptools
-python3 setup.py build_ext -i
-python3 setup.py sdist
-python3 setup.py bdist_wheel
-mv dist/*.whl $lib_dir
-cd $prj_dir
-rm -rf $lib_dir/bare68k
+set -ex
 
+if [ -z "$VIRTUAL_ENV" ]; then
+    echo "Please run this script from within a virtual environment."
+    exit 1
+fi
+
+pushd bare68k
+
+# Check if uv is installed
+PIP="uv pip"
+if ! command -v uv &> /dev/null
+then
+    echo "uv could not be found, defaulting to pip"
+    PIP="pip"
+fi
+
+$PIP install setuptools
+make init build sdist bdist
+popd
