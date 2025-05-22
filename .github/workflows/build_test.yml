@@ -81,7 +81,7 @@ jobs:
         shell: bash
 
       - name: Print project state
-        run: tree
+        run: ls -al *
 
       - name: Build executable
         run: './src/build.sh'
