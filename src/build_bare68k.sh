@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
-
-set -ex
-
-if [ -z "$VIRTUAL_ENV" ]; then
-    echo "Please run this script from within a virtual environment."
-    exit 1
-fi
+set -uex
 
 pushd bare68k
 

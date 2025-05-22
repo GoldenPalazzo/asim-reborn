@@ -1,4 +1,5 @@
 #!/bin/sh
+set -uex
 
 prj_dir=$(dirname $(dirname $(readlink -f "$0")))
 bin_dir=$prj_dir/bin

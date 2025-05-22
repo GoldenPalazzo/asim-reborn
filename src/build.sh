@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -uex
 PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 prj_dir=$(dirname $(dirname $(readlink -f "$0")))
 bin_dir=$prj_dir/bin
