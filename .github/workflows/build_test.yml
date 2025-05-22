@@ -65,11 +65,9 @@ jobs:
         run: './src/prepare_repo.sh'
 
       - name: Build vasm
-        #if: runner.os != 'Windows'
         run: './src/build_vasm.sh'
 
-      - name: Build bare68k (*NIX only)
-        if: runner.os != 'Windows'
+      - name: Build bare68
         run: './src/build_bare68k.sh'
 
       - name: Install pip dependencies
