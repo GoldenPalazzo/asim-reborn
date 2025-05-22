@@ -28,6 +28,7 @@ get bored easily when a project is half completed.
 
 ## Table of contents
 
+0. [Requirements](#req)
 1. [Installation](#install)
 2. [Building](#build)
 3. [Usage](#usage)
@@ -43,28 +44,81 @@ tab and follow the instructions to install the latest version.
 If you are a masochist or actually need to build it yourself for your needs,
 follow the instructions below.
 
-<a id="build"></a>
-## Building
-
 Although it's preferable to download the precompiled binary from the releases
 tab, if you ever need to build it yourself, here are the instructions.
 
-1. Download Python 3.12
-2. Clone the repo by clicking the green button or by running
+<a id="req"></a>
+## Requirements
+
+Before starting, make sure you have the following installed:
+
+0. If you're on Mac OS, make sure you have `brew` installed. You can install it
+   by running the following command in your terminal:
 
    ```bash
-   git clone https://github.com/GoldenPalazzo/asim-reborn.git
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
    ```
 
-3. Get in the newly cloned repo
+   You will also need GNU coreutils.
 
-  - I strongly advise you to create a virtual environment via
+   ```bash
+   brew install coreutils
+   ```
+
+1. Python3, git and make
+
+   - Linux
+     - Debian/Ubuntu
+
+     ```bash
+     sudo apt install python3 git make
+     ```
+
+     - Arch
+
+     ```bash
+     sudo pacman -S python git make
+     ```
+
+     - ...
+
+   - Mac OS
+
+   ```bash
+   brew install python git make
+   ```
+
+   - Windows
+
+   Download Python from [python.org](https://www.python.org/downloads/)
+   and install it. Make sure to check the box "Add Python to PATH" in the installer.
+
+   Git can be downloaded from [git-scm.com](https://git-scm.com/download/win) and
+   installed. Make sure to check the box "Add Git to PATH" in the installer.
+
+
+   I will later update this section with the exact commands to install make.
+
+<a id="build"></a>
+## Building
+
+1. Clone the repo and all their submodules by running
+
+   ```bash
+   git clone --recurse-submodules https://github.com/GoldenPalazzo/asim-reborn.git
+   ```
+
+3. Get in the newly cloned repo with `cd asim-reborn`
+
+  - Create a virtual environment via
 
     ```bash
     python -m venv .venv
     ```
 
-    - Linux
+  - Activate the virtual environment
+
+    - Linux/Mac OS
 
     ```bash
     source .venv/bin/activate
@@ -78,32 +132,29 @@ tab, if you ever need to build it yourself, here are the instructions.
 
 ### Linux / Mac OS
 
-4. Download external resources
+4. Prepare the repository by downloading external resources
 
     ```bash
     ./src/prepare_repo.sh
     ```
 
-    (make sure you have installed `brew` on OS X, and installed GNU coreutils
-    via `$ brew install coreutils`)
-5. Build vasm
+5. Build VASM (the assembler)
 
     ```bash
     ./src/build_vasm.sh
     ```
 
-6. Build bare68k
+6. Build bare68k (M68k emulator)
 
     ```bash
     ./src/build_bare68k.sh
     ```
 
-7. (MAKE SURE YOU'RE IN THE VIRTUALENVIRONMENT) Install pip dependencies
+7. Install pip dependencies
 
     ```bash
-    python -m pip install pip pyinstaller
     pip install -r requirements.txt
-    pip install lib/bare68k*.whl
+    pip install pyinstaller bare68k/dist/bare68k-0.1.2*.whl
     ```
 
 8. Build.
@@ -111,6 +162,9 @@ tab, if you ever need to build it yourself, here are the instructions.
     ```bash
     ./src/build.sh
     ```
+
+The executable will be in `dist/AsimReborn`. You can run it by executing
+`./dist/AsimReborn/AsimReborn` or by double clicking it.
 
 ### Windows
 
