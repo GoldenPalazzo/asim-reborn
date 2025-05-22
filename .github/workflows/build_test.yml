@@ -49,13 +49,15 @@ jobs:
             linux-pip-
             linux-
 
-      - name: Installing OS-specific packages
+      - name: Installing Linux packages
         if: runner.os == 'Linux'
         run: |
           sudo apt update
           sudo apt install --yes libxcb-cursor0 libxcb-shape0 libxcb-image0 \
              libxcb-keysyms1 libxkbcommon-x11-0 libxcb-icccm4 libxcb-xkb1 \
              libxcb-randr0  libxcb-render-util0 libpulse0 libffi8 libpcre3
+
+      - name: Installing macOS packages
         if: runner.os == 'macOS'
         run: brew install coreutils
 
