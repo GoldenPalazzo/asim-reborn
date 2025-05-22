@@ -8,6 +8,10 @@ lib_dir=$prj_dir/lib
 src_dir=$prj_dir/src
 dist_dir=$prj_dir/dist
 
+abs_to_rel() {
+    realpath --relative-to="$PWD" "$1"
+}
+
 ext=""
 if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
     ext=".exe"
@@ -15,10 +19,6 @@ fi
 vasm_bin="$(abs_to_rel $bin_dir)/vasmm68k_mot$ext"
 
 rm -rf $dist_dir
-
-abs_to_rel() {
-    realpath --relative-to="$PWD" "$1"
-}
 
 pyinstaller --clean --onedir --name "AsimReborn" \
     --add-binary="$vasm_bin:bin" \
