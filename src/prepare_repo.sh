@@ -4,7 +4,7 @@ prj_dir=$(dirname $(dirname $(readlink -f "$0")))
 bin_dir=$prj_dir/bin
 res_dir=$prj_dir/res
 # Making directories
-mkdir -p $bin_dir $res_dir $lib_dir
+mkdir -p $bin_dir $res_dir
 # Downloading resources
 curl -Lo "$res_dir/DroidSansMono.ttf" \
     "https://www.fontsquirrel.com/fonts/download/droid-sans-mono"
