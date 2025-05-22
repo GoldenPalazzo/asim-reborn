@@ -29,4 +29,4 @@ if [ ! -d "$prj_dir/dist" ]; then
 fi
 
 chmod +x $prj_dir/dist/AsimReborn/AsimReborn
-chmod +x $prj_dir/dist/AsimReborn/_internal/bin/vasmm68k_mot_unix
+chmod +x $prj_dir/dist/AsimReborn/_internal/bin/vasmm68k_mot
