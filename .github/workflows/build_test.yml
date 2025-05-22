@@ -5,7 +5,6 @@ on:
       - 'main'
 
 env:
-  SHELL: bash
   PYTHON_VERSION: '3.12.3'
   PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
 
@@ -15,33 +14,16 @@ jobs:
       matrix:
         include:
           - os: 'ubuntu-24.04'
-            prep: './src/prepare_repo.sh'
-            build_vasm: './src/build_vasm.sh'
-            build_b68k: './src/build_bare68k.sh'
-            build: './src/build.sh'
-            dist: 'dist/AsimReborn'
             art:    'asimreborn-lin'
           - os: 'windows-2025'
-            prep: '.\src\prepare_repo.bat'
-            b68k: '.\lib\bare68k-0.1.2-cp312-cp312-win_amd64.whl'
-            vasm: '.\bin\vasmm68k_mot_win.exe'
-            build: '.\src\build.bat'
-            dist: '.\dist\AsimReborn'
             art:  'asimreborn-win64'
           - os: 'macos-13'
-            prep: './src/prepare_repo.sh'
-            build_vasm: './src/build_vasm.sh'
-            build_b68k: './src/build_bare68k.sh'
-            build: './src/build.sh'
-            dist: 'dist/AsimReborn'
             art:    'asimreborn-osx_intel'
           - os: 'macos-15'
-            prep: './src/prepare_repo.sh'
-            build_vasm: './src/build_vasm.sh'
-            build_b68k: './src/build_bare68k.sh'
-            build: './src/build.sh'
-            dist: 'dist/AsimReborn'
             art:    'asimreborn-osx_arm'
+
+    defaults:
+      shell: bash
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -79,34 +61,33 @@ jobs:
              libxcb-randr0  libxcb-render-util0 libpulse0 libffi8 libpcre3
 
       - name: Download resources
-        run: ${{ matrix.prep }}
+        run: './src/prepare_repo.sh'
 
-      - name: Build vasm (*NIX only)
-        if: runner.os != 'Windows'
-        run: ${{ matrix.build_vasm }}
+      - name: Build vasm
+        #if: runner.os != 'Windows'
+        run: './src/build_vasm.sh'
 
       - name: Build bare68k (*NIX only)
         if: runner.os != 'Windows'
-        run: ${{ matrix.build_b68k }}
+        run: './src/build_bare68k.sh'
 
       - name: Install pip dependencies
         run: |
           python -m pip install pip pyinstaller
           pip install -r requirements.txt
-          if [ "${{ runner.os }}" != "Windows" ]; then
-            pip install bare68k/dist/bare68k-0.1.2*.whl
-          else
+          if [ "${{ runner.os }}" == "Windows" ]; then
             set PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
-            pip install ${{ matrix.b68k }}
           fi
+          pip install bare68k/dist/bare68k-0.1.2*.whl
         shell: bash
 
       - name: Build executable
-        run: ${{ matrix.build }}
+        run: './src/build.sh'
+
       - name: Deploy artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.art }}
-          path: ${{ matrix.dist }}
+          path: dist/AsimReborn
           if-no-files-found: error
 
