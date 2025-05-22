@@ -49,10 +49,6 @@ jobs:
             linux-pip-
             linux-
 
-      - name: Installing GNU coreutils (macOS only)
-        if: runner.os == 'macOS'
-        run: brew install coreutils
-
       - name: Installing OS-specific packages
         if: runner.os == 'Linux'
         run: |
@@ -60,6 +56,8 @@ jobs:
           sudo apt install --yes libxcb-cursor0 libxcb-shape0 libxcb-image0 \
              libxcb-keysyms1 libxkbcommon-x11-0 libxcb-icccm4 libxcb-xkb1 \
              libxcb-randr0  libxcb-render-util0 libpulse0 libffi8 libpcre3
+        if: runner.os == 'macOS'
+          run: brew install coreutils
 
       - name: Download resources
         run: './src/prepare_repo.sh'
