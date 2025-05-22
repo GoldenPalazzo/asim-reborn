@@ -3,22 +3,25 @@ on:
   push:
     branches:
       - 'main'
-    paths:
-      - 'src/version.py'
-      - '.github/workflows/build_test.yml'
+
+env:
+  SHELL: bash
+  PYTHON_VERSION: '3.12.3'
+  PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
+
 jobs:
   Build-Exe:
     strategy:
       matrix:
         include:
-          - os: 'ubuntu-20.04'
+          - os: 'ubuntu-24.04'
             prep: './src/prepare_repo.sh'
             build_vasm: './src/build_vasm.sh'
             build_b68k: './src/build_bare68k.sh'
             build: './src/build.sh'
             dist: 'dist/AsimReborn'
             art:    'asimreborn-lin'
-          - os: 'windows-latest'
+          - os: 'windows-2025'
             prep: '.\src\prepare_repo.bat'
             b68k: '.\lib\bare68k-0.1.2-cp312-cp312-win_amd64.whl'
             vasm: '.\bin\vasmm68k_mot_win.exe'
@@ -32,61 +35,78 @@ jobs:
             build: './src/build.sh'
             dist: 'dist/AsimReborn'
             art:    'asimreborn-osx_intel'
-          #- os: 'macos-14'
-            #prep: './src/prepare_repo.sh'
-            #build_vasm: './src/build_vasm.sh'
-            #build_b68k: './src/build_bare68k.sh'
-            #build: './src/build.sh'
-            #dist: 'dist/AsimReborn'
-            #art:    'asimreborn-osx_arm'
+          - os: 'macos-15'
+            prep: './src/prepare_repo.sh'
+            build_vasm: './src/build_vasm.sh'
+            build_b68k: './src/build_bare68k.sh'
+            build: './src/build.sh'
+            dist: 'dist/AsimReborn'
+            art:    'asimreborn-osx_arm'
 
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checking out repo code
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup python
+        with:
+          submodules: recursive
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.3'
-      - name: Installing coreutils (OS X)
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+            linux-pip-
+            linux-
+
+      - name: Installing GNU coreutils (macOS only)
         if: runner.os == 'macOS'
         run: brew install coreutils
-      - name: Installing QT dependencies (Linux)
+
+      - name: Installing OS-specific packages
         if: runner.os == 'Linux'
         run: |
           sudo apt update
           sudo apt install --yes libxcb-cursor0 libxcb-shape0 libxcb-image0 \
              libxcb-keysyms1 libxkbcommon-x11-0 libxcb-icccm4 libxcb-xkb1 \
              libxcb-randr0  libxcb-render-util0 libpulse0 libffi7 libpcre3
+
       - name: Download resources
         run: ${{ matrix.prep }}
-      - name: Build vasm (*NIX)
+
+      - name: Build vasm (*NIX only)
         if: runner.os != 'Windows'
         run: ${{ matrix.build_vasm }}
-      - name: Build bare68k (*NIX)
+
+      - name: Build bare68k (*NIX only)
         if: runner.os != 'Windows'
         run: ${{ matrix.build_b68k }}
-      - name: Install pip dependencies (*NIX)
-        if: runner.os != 'Windows'
+
+      - name: Install pip dependencies
         run: |
           python -m pip install pip pyinstaller
           pip install -r requirements.txt
-          pip install bare68k/dist/bare68k-0.1.2*.whl
-      - name: Install pip dependencies (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          set PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
-          python -m pip install pip pyinstaller
-          pip install -r requirements.txt
-          pip install ${{ matrix.b68k }}
+          if [ "${{ runner.os }}" != "Windows" ]; then
+            pip install bare68k/dist/bare68k-0.1.2*.whl
+          else
+            set PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
+            pip install ${{ matrix.b68k }}
+          fi
+        shell: bash
+
       - name: Build executable
         run: ${{ matrix.build }}
-      - name: Compress dist dir
-        run: tar -cf asimreborn.tar ${{ matrix.dist }}
       - name: Deploy artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.art }}
-          path: asimreborn.tar
+          path: ${{ matrix.dist }}
           if-no-files-found: error
 
