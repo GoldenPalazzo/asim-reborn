@@ -16,6 +16,7 @@ def resolve_path(path: str) -> pathlib.Path:
 #print(base_path)
 compiler_path = (base_path /
                  "bin" /
-                 "vasmm68k_mot"
+                 ("vasmm68k_mot"
+                  f"{'.exe' if platform.system() == 'Windows' else ''}")
                  ).resolve()
 
