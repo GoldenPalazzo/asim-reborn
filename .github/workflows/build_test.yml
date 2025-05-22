@@ -80,6 +80,9 @@ jobs:
           pip install bare68k/dist/bare68k-0.1.2*.whl
         shell: bash
 
+      - name: Print project state
+        run: tree
+
       - name: Build executable
         run: './src/build.sh'
 
