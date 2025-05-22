@@ -23,7 +23,8 @@ jobs:
             art:    'asimreborn-osx_arm'
 
     defaults:
-      shell: bash
+      run:
+        shell: bash
 
     runs-on: ${{ matrix.os }}
     steps:
