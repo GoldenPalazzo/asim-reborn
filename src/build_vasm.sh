@@ -11,5 +11,5 @@ curl -Lo $src_dir/vasm.tar.gz http://sun.hasenbraten.de/vasm/release/vasm.tar.gz
 tar -xzf $src_dir/vasm.tar.gz -C $src_dir
 cd $src_dir/vasm
 make CPU=m68k SYNTAX=mot
-mv vasmm68k_mot $bin_dir/vasmm68k_mot_unix
+mv vasmm68k_mot $bin_dir/vasmm68k_mot
 rm -rf $src_dir/vasm $src_dir/vasm.tar.gz
