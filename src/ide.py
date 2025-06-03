@@ -3,17 +3,21 @@
 # ASIM Reborn - Simple multiplatform 68k IDE
 # Copyright (C) 2024 Francesco Palazzo
 
-from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, QMessageBox, QTextEdit, QPlainTextEdit, QFileDialog, QTabWidget, QWidget
-from PySide6.QtGui import QFont, QFontDatabase, QPainter, QSyntaxHighlighter, QTextFormat, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, QAction, QColor, QTextDocument, QIcon, QDrag
-from PySide6.QtCore import QFileInfo, QTimer, Qt, QEvent, QSize, QRect
-
 import os
 import os.path
 from typing import Optional, Union, Callable
 import re
 import sys
 
-import compiler, run, opcodes, palettes, path_resolver, help, screen
+from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, \
+    QMessageBox, QTextEdit, QPlainTextEdit, QFileDialog, QTabWidget, QWidget
+from PySide6.QtGui import QFont, QFontDatabase, QPainter, QSyntaxHighlighter, \
+    QTextFormat, QTextCharFormat, QTextCursor, QKeySequence, QKeyEvent, \
+    QAction, QColor, QTextDocument, QIcon, QDrag
+from PySide6.QtCore import QFileInfo, QTimer, Qt, QEvent, QSize, QRect
+
+from compiler import VasmCompiler
+import run, opcodes, palettes, path_resolver, help, screen
 
 class LineNumber(QWidget):
     def __init__(self, editor):
@@ -73,12 +77,25 @@ class M68KHighlighter(QSyntaxHighlighter):
                 length = match.end() - start
                 self.setFormat(start, length, format)
 
-class CustomTextEdit(QPlainTextEdit):
-    def __init__(self, palette: palettes.Palette = palettes.monokai):
+class IDETextEdit(QPlainTextEdit):
+    def __init__(self,
+                 palette: palettes.Palette = palettes.monokai,
+                 font: str = "Monospace",
+                 font_size: int = 16):
         super().__init__()
         self.ui_palette = palette
-        self.tab_size = 4
-        self.setCursorWidth(3)
+        self.tab_size = 8
+        self.setFont(QFont(font, font_size))
+        self.setStyleSheet("QPlainTextEdit { "
+            # f"font-family: '{self.font}'; "
+            # f"font-size: {self.font_size}pt; "
+            f"background-color: {self.ui_palette.background}; "
+            f"color: {self.ui_palette.text}; "
+        " }")
+
+
+        self.setCursorWidth(5)
+        self.setLineWrapMode(QPlainTextEdit.WidgetWidth)
         self.lineNumberArea = LineNumber(self)
         self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
         self.updateRequest.connect(self.updateLineNumberArea)
@@ -138,7 +155,7 @@ class CustomTextEdit(QPlainTextEdit):
             bottom = top + self.blockBoundingRect(block).height()
             block_number += 1
 
-    def highlightCurrentLine(self):
+    def highlightCurrentLine(self): # currently only highlights cursor's line
         extraSelections = []
 
         if not self.isReadOnly():
@@ -154,7 +171,12 @@ class CustomTextEdit(QPlainTextEdit):
 class IDE(QMainWindow):
     def __init__(self, file: Optional[str] = None, config: dict = {}):
         super().__init__()
-
+        # Config
+        editor_config = config.get("editor", {})
+        self.font = editor_config.get("font-family", self.setup_monolisa())
+        self.font_size = int(editor_config.get("font-size", 16))
+        self.ui_palette = palettes.dict_to_palette(editor_config.get("palette", {}),
+                                                palettes.monokai)
         icon = QIcon()
         icon.addFile(str((path_resolver.base_path/"res"/"logo_256x256.ico").resolve()),
                      QSize(256, 256))
@@ -162,20 +184,17 @@ class IDE(QMainWindow):
                      QSize(24, 24))
         self.setWindowIcon(icon)
         self.setWindowTitle("ASIM Reborn")
-        self.compiler = compiler.Compiler()
+        # Classes
+        self.compiler = VasmCompiler()
         self.runner = run.Runner()
         self.documentation = help.Help()
         self.about = help.About()
+
+        #State
         self.current_file: str = ""
         self.current_lst: dict[int, int] = {}
 
-        editor_config = config.get("editor", {})
-        self.font = editor_config.get("font-family", self.setup_monolisa())
-        self.font_size = int(editor_config.get("font-size", 16))
-        self.ui_palette = palettes.dict_to_palette(editor_config.get("palette", {}),
-                                                palettes.monokai)
         self.init_ui()
-        self.highlighter = M68KHighlighter(self.text_edit.document(), self.ui_palette)
         self.runner_polling = QTimer()
         self.runner_polling.timeout.connect(self.runner.update_ui)
         self.runner_polling.timeout.connect(self.update_highlighted_running_line)
@@ -183,6 +202,7 @@ class IDE(QMainWindow):
         if file:
             self.current_file = file
             self.load_file(file)
+
     def setup_monolisa(self) -> str:
         font_path = str((path_resolver.base_path/"res"/"MonoLisa-Regular.ttf").resolve())
         found_font = QFontDatabase.addApplicationFont(font_path)
@@ -191,23 +211,15 @@ class IDE(QMainWindow):
         return "MonoLisa"
 
     def init_ui(self):
-        self.text_edit = CustomTextEdit(self.ui_palette)
-        self.text_edit.tab_size = 8
-        self.text_edit.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.text_edit = IDETextEdit(self.ui_palette, self.font, self.font_size)
         self.setCentralWidget(self.text_edit)
         self.text_edit.textChanged.connect(self.on_text_changed)
+        self.highlighter = M68KHighlighter(self.text_edit.document(), self.ui_palette)
 
         self.setGeometry(100, 100, 800, 600)
         self.update_window_title(False)
-        self.text_edit.setStyleSheet("QPlainTextEdit { "
-                                     f"font-family: '{self.font}'; "
-                                     f"font-size: {self.font_size}pt; "
-                                     f"background-color: {self.ui_palette.background}; "
-                                     f"color: {self.ui_palette.text}; "
-                           " }")
 
         # Compilation dock
-
         self.dock = QDockWidget("Compiler log", self)
         self.dock.setAllowedAreas(Qt.AllDockWidgetAreas)
         self.compiler_widget = QPlainTextEdit()
@@ -272,33 +284,34 @@ class IDE(QMainWindow):
         fileMenu.addAction(save_action)
         fileMenu.addAction(save_as_new_action)
         fileMenu.addAction(exit_action)
+
         # Run menu
-        compile_action = QAction('Compile program', self)
+        compile_action = QAction('Compile', self)
         compile_action.setShortcut(QKeySequence("F5"))
         compile_action.triggered.connect(self.compile_file)
-        execute_action = QAction('Execute program', self)
-        execute_action.triggered.connect(self.execute_file)
-        execute_action.setShortcut(QKeySequence("F6"))
-        step_action = QAction('Step', self)
-        step_action.triggered.connect(self.runner.step)
-        step_action.setShortcut(QKeySequence("F7"))
         run_action = QAction('Run', self)
         run_action.triggered.connect(self.runner.run)
-        run_action.setShortcut(QKeySequence("F8"))
+        run_action.setShortcut(QKeySequence("F6"))
+        run_debug_action = QAction('Run with debug', self)
+        run_debug_action.triggered.connect(self.execute_file)
+        run_debug_action.setShortcut(QKeySequence("F7"))
+        step_action = QAction('Step', self)
+        step_action.triggered.connect(self.runner.step)
+        step_action.setShortcut(QKeySequence("F8"))
         stop_action = QAction('Stop', self)
         stop_action.triggered.connect(self.stop)
         stop_action.setShortcut(QKeySequence("F9"))
         run_menu = self.menuBar().addMenu('Run')
         run_menu.addAction(compile_action)
-        run_menu.addAction(execute_action)
-        run_menu.addAction(step_action)
         run_menu.addAction(run_action)
+        run_menu.addAction(run_debug_action)
+        run_menu.addAction(step_action)
         run_menu.addAction(stop_action)
         # Window menu
-        window_menu = self.menuBar().addMenu('Window')
-        window_menu.addAction(self.dock.toggleViewAction())
-        window_menu.addAction(self.exec_dock.toggleViewAction())
-        window_menu.addAction(self.docs_dock.toggleViewAction())
+        docks_menu = self.menuBar().addMenu('Window')
+        docks_menu.addAction(self.dock.toggleViewAction())
+        docks_menu.addAction(self.exec_dock.toggleViewAction())
+        docks_menu.addAction(self.docs_dock.toggleViewAction())
         # window_menu.addAction(self.screen_dock.toggleViewAction())
         # Help menu
         about_action = QAction('About', self)

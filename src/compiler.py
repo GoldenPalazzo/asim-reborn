@@ -13,26 +13,23 @@ import sys
 import path_resolver
 
 
-arguments = (
-        "-maxerrors=1",
-        "-Fsrec",
-        "-s37",
-        "-exec=main",
-        "-no-opt")
-
-class Compiler:
+class VasmCompiler:
     def __init__(self):
-        pass
-        #subprocess.run(["just", "build"])
+        self.arguments = (
+            "-maxerrors=1",
+            "-Fsrec",
+            "-s37",
+            "-exec=main",
+            "-no-opt"
+        )
+
     def compile(self, fpath) -> tuple[str,str]:
         command_array = [str(path_resolver.compiler_path),
-                              *arguments,
-                              "-o",
-                              f"{os.path.splitext(fpath)[0]}.h68",
-                              "-L",
-                              f"{os.path.splitext(fpath)[0]}.lst",
-                              fpath]
-        print(f"Running {command_array}")
+                              *self.arguments,
+                              "-o", f"{os.path.splitext(fpath)[0]}.h68",
+                              "-L", f"{os.path.splitext(fpath)[0]}.lst",
+                              fpath
+        ]
         p = subprocess.Popen(command_array, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
         #if p.wait() != 0:
