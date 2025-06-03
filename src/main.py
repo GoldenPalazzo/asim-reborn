@@ -19,49 +19,17 @@
 import sys
 
 from PySide6.QtWidgets import QApplication
-import requests
 
-import compiler, ide, m68k, config
-from version import __version__
+from ide import IDE
+from config import Config
 
 ftypes = [
     ('SREC files', '*.srec *.SREC *.h68 *.H68'),
     ('All files', '*'),
 ]
 
-#logging.basicConfig(filename='myapp.log', level=logging.DEBUG)
-
-def main_old():
-    if len(sys.argv) > 1:
-        main_cpu = m68k.m68k()
-        fname = sys.argv[1]
-        main_cpu.load_file(fname)
-        while True:
-            try:
-                main_cpu.step()
-                input()
-            except KeyboardInterrupt:
-                main_cpu.poweroff()
-                break
-    else:
-        app = QApplication(sys.argv)
-        main_window = ide.IDE()
-        comp = compiler.Compiler()
-        sys.exit(app.exec())
-        #app = ASIMWindow(main_cpu)
-        #app.mainloop()
-
-def get_latest_version():
-    url = "https://api.github.com/repos/goldenpalazzo/asim-reborn/releases/latest"
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        return data['tag_name']
-    else:
-        return None
-
 def main():
-    cfg = config.Config().config
+    cfg = Config().config
     app = QApplication(sys.argv)
     dark_stylesheet = """
         QWidget {
@@ -86,12 +54,8 @@ def main():
         }
     """
     app.setStyleSheet(dark_stylesheet)
-    main_window = ide.IDE(sys.argv[1] if len(sys.argv) > 1 else None,
+    main_window = IDE(sys.argv[1] if len(sys.argv) > 1 else None,
                           config=cfg)
-    latest_version = get_latest_version()
-    print(latest_version)
-    if latest_version and latest_version != __version__:
-        main_window.show_update_message(latest_version)
     sys.exit(app.exec())
 if __name__ == "__main__":
     main()
