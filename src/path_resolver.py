@@ -10,9 +10,6 @@ if getattr(sys, 'frozen', False):
 else:
     base_path = pathlib.Path(__file__).parent.parent
 
-def resolve_path(path: str) -> pathlib.Path:
-    return (base_path / path).resolve()
-
 #print(base_path)
 compiler_path = (base_path /
                  "bin" /

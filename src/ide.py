@@ -156,9 +156,9 @@ class IDE(QMainWindow):
         super().__init__()
 
         icon = QIcon()
-        icon.addFile(str(path_resolver.resolve_path("res/logo_256x256.ico")),
+        icon.addFile(str((path_resolver.base_path/"res"/"logo_256x256.ico").resolve()),
                      QSize(256, 256))
-        icon.addFile(str(path_resolver.resolve_path("res/logo_24x24.ico")),
+        icon.addFile(str((path_resolver.base_path/"res"/"logo_24x24.ico").resolve()),
                      QSize(24, 24))
         self.setWindowIcon(icon)
         self.setWindowTitle("ASIM Reborn")
@@ -184,7 +184,7 @@ class IDE(QMainWindow):
             self.current_file = file
             self.load_file(file)
     def setup_monolisa(self) -> str:
-        font_path = str(path_resolver.resolve_path("res/MonoLisa-Regular.ttf"))
+        font_path = str((path_resolver.base_path/"res"/"MonoLisa-Regular.ttf").resolve())
         found_font = QFontDatabase.addApplicationFont(font_path)
         if found_font == -1:
             return "Monospace"

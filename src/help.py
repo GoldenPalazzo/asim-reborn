@@ -15,7 +15,7 @@ class Help(QWidget):
         frame = QVBoxLayout()
         self.setWindowTitle("Help")
         self.resize(400, 300)
-        doc_url = str(path_resolver.resolve_path("res/docs.html"))
+        doc_url = str((path_resolver.base_path/"res"/"docs.html").resolve())
         text = open(doc_url).read()
         docs = QLabel(text)
         frame.addWidget(docs)
@@ -28,7 +28,7 @@ class About(QWidget):
         frame = QVBoxLayout()
         self.setWindowTitle("About")
         image = QLabel()
-        pmap = QPixmap(str(path_resolver.resolve_path("res/logo_256x256.png")))
+        pmap = QPixmap(str((path_resolver.base_path/"res"/"logo_256x256.png").resolve()))
         image.setPixmap(pmap)
         about = QLabel("<h1>ASIM Reborn - Simple multiplatform 68k IDE<br />"
                        "Version: 0.1</h1>\n"
